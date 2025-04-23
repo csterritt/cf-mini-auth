@@ -16,6 +16,9 @@ const renderHome = (c: Context) => {
       <p>
         <a href={PATHS.PRIVATE}>Go to Private</a>
       </p>
+      <p>
+        <a href={PATHS.COUNT}>Go to Count</a>
+      </p>
     </div>
   )
 }
