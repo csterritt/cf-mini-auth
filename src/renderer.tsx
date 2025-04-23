@@ -6,7 +6,7 @@ export const renderer = jsxRenderer(({ children }) => {
       <head>
         <link rel='stylesheet' href='/style/normalize.css' type='text/css' />
         <link rel='stylesheet' href='/style/sakura.css' type='text/css' />
-        <title>Hono, D1</title>
+        <title>CF Mini Auth</title>
       </head>
       <body>{children}</body>
     </html>
