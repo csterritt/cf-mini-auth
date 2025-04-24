@@ -3,9 +3,14 @@
   "name": "cf-mini-auth",
   "compatibility_date": "2025-04-23",
   "pages_build_output_dir": "./dist",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cf-mini-auth-db",
+      "database_id": "e2150b3c-c078-441c-ba8d-0117b2070e6d",
+    },
+  ],
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },

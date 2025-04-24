@@ -4,6 +4,7 @@
  */
 import { Hono, Context } from 'hono'
 import { PATHS } from '../constants'
+import { Bindings } from '../local-types'
 
 /**
  * Render the JSX for the home page.
@@ -27,6 +28,6 @@ const renderHome = (c: Context) => {
  * Attach the home route to the app.
  * @param app - Hono app instance
  */
-export const buildHome = (app: Hono): void => {
+export const buildHome = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.HOME, (c) => c.render(renderHome(c)))
 }

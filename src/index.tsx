@@ -6,8 +6,9 @@ import { buildPrivate } from './routes/buildPrivate'
 import { buildCount } from './routes/buildCount'
 import { buildIncrement } from './routes/buildIncrement'
 import { PATHS } from './constants'
+import { Bindings } from './local-types'
 
-const app = new Hono()
+const app = new Hono<{ Bindings: Bindings }>()
 
 app.use(logger())
 app.use(renderer)
