@@ -6,6 +6,7 @@ import { buildHome } from './routes/buildHome'
 import { buildPrivate } from './routes/buildPrivate'
 import { buildCount } from './routes/buildCount'
 import { buildIncrement } from './routes/buildIncrement'
+import { build404 } from './routes/build404'
 import { PATHS } from './constants'
 import { Bindings } from './local-types'
 
@@ -18,6 +19,9 @@ buildHome(app)
 buildPrivate(app)
 buildCount(app)
 buildIncrement(app)
+
+// this MUST be the last route declared!
+build404(app)
 
 console.log('Registered paths:')
 Object.values(PATHS).forEach((path) => console.log(path))

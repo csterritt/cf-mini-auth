@@ -13,7 +13,7 @@ import { Bindings } from '../local-types'
  */
 const renderHome = (c: Context) => {
   return (
-    <div>
+    <div data-testid='startup-page-banner'>
       <h3>Hello!</h3>
       <p>
         <a href={PATHS.PRIVATE}>Go to Private</a>
