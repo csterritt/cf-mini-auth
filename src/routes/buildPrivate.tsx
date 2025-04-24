@@ -3,6 +3,7 @@
  * @module routes/buildPrivate
  */
 import { Hono, Context } from 'hono'
+
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 

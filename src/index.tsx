@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
-import { renderer } from './renderer'
 import { logger } from 'hono/logger'
+
+import { renderer } from './renderer'
 import { buildHome } from './routes/buildHome'
 import { buildPrivate } from './routes/buildPrivate'
 import { buildCount } from './routes/buildCount'
