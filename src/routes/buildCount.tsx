@@ -22,7 +22,9 @@ const renderCount = (c: Context, count: number, error?: string) => {
         <a href={PATHS.HOME}>Go home</a>
       </p>
       <form method='post' action={PATHS.INCREMENT}>
-        <button type='submit'>Increment the count</button>
+        <button type='submit' data-testid='increment-count-link'>
+          Increment the count
+        </button>
       </form>
     </div>
   )

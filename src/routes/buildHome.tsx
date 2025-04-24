@@ -20,7 +20,9 @@ const renderHome = (c: Context) => {
         <a href={PATHS.PRIVATE}>Go to Private</a>
       </p>
       <p>
-        <a href={PATHS.COUNT}>Go to Count</a>
+        <a href={PATHS.COUNT} data-testid='visit-count-link'>
+          Go to Count
+        </a>
       </p>
       <p>
         <a href={PATHS.AUTH.SIGN_IN} data-testid='sign-in-link'>
