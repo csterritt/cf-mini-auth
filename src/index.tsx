@@ -5,7 +5,7 @@ import { renderer } from './renderer'
 import { buildHome } from './routes/buildHome'
 import { buildPrivate } from './routes/buildPrivate'
 import { buildCount } from './routes/buildCount'
-import { buildIncrement } from './routes/buildIncrement'
+import { handleIncrement } from './routes/handleIncrement'
 import { build404 } from './routes/build404'
 import { PATHS } from './constants'
 import { Bindings } from './local-types'
@@ -19,7 +19,7 @@ app.use(renderer)
 buildHome(app)
 buildPrivate(app)
 buildCount(app)
-buildIncrement(app)
+handleIncrement(app)
 buildSignIn(app)
 
 // this MUST be the last route declared!
