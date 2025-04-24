@@ -4,9 +4,10 @@
  */
 import { Hono } from 'hono'
 
-import { PATHS, HTML_STATUS } from '../constants'
+import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import prismaClients from '../lib/prismaClient'
+import { redirectWithMessage, redirectWithError } from '../support/redirects'
 
 /**
  * Attach the increment POST route to the app.
@@ -27,11 +28,11 @@ export const buildIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
         },
       })
 
-      return c.redirect(PATHS.COUNT, HTML_STATUS.SEE_OTHER)
+      return redirectWithMessage(c, PATHS.COUNT, 'Increment successful')
     } catch (error) {
       console.error('Error incrementing count:', error)
-      // Optionally, redirect with an error message or render an error page
-      return c.text('Database error', 500)
+      // Redirect with an error message
+      return redirectWithError(c, PATHS.COUNT, 'Database error')
     }
   })
 }

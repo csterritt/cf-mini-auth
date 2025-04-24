@@ -21,6 +21,11 @@ const renderHome = (c: Context) => {
       <p>
         <a href={PATHS.COUNT}>Go to Count</a>
       </p>
+      <p>
+        <a href={PATHS.AUTH.SIGN_IN} data-testid='sign-in-link'>
+          Go to Sign In
+        </a>
+      </p>
     </div>
   )
 }
