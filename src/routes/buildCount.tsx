@@ -17,7 +17,7 @@ const renderCount = (c: Context, count: number, error?: string) => {
   return (
     <div>
       <h3>Count</h3>
-      <p>Current value: {error ? `Error ${error}` : count}</p>
+      <p data-testid='count-value'>{error ? `Error ${error}` : count}</p>
       <p>
         <a href={PATHS.HOME}>Go home</a>
       </p>

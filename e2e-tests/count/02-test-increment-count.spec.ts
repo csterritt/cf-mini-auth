@@ -1,17 +1,18 @@
 import { test, expect } from '@playwright/test'
-import { clickLink, verifyAlert } from '../support/finders'
+import { clickLink, getElementText, verifyAlert } from '../support/finders'
+import { verifyOnStartupPage } from '../support/page-verifiers'
 
 test.describe('Count Page', () => {
   test('increments the count and shows success message', async ({ page }) => {
-    // Go to home and click the count link
+    // Go to home and verify
     await page.goto('http://localhost:3000/')
+    await verifyOnStartupPage(page)
     await clickLink(page, 'visit-count-link')
 
     // Get the current count value
-    const countText = await page.textContent('p:has-text("Current value:")')
-    const match = countText?.match(/Current value: (\d+)/)
-    expect(match).not.toBeNull()
-    const before = match ? parseInt(match[1], 10) : NaN
+    const beforeText = await getElementText(page, 'count-value')
+    expect(beforeText).not.toBeNull()
+    const before = beforeText ? parseInt(beforeText, 10) : NaN
     expect(Number.isNaN(before)).toBe(false)
 
     // Click the increment button
@@ -24,10 +25,9 @@ test.describe('Count Page', () => {
     await verifyAlert(page, 'Increment successful')
 
     // The count should be one more than before
-    const afterText = await page.textContent('p:has-text("Current value:")')
-    const afterMatch = afterText?.match(/Current value: (\d+)/)
-    expect(afterMatch).not.toBeNull()
-    const after = afterMatch ? parseInt(afterMatch[1], 10) : NaN
+    const afterText = await getElementText(page, 'count-value')
+    expect(afterText).not.toBeNull()
+    const after = afterText ? parseInt(afterText, 10) : NaN
     expect(after).toBe(before + 1)
   })
 })

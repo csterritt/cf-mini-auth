@@ -5,7 +5,7 @@ import { verifyAlert } from '../support/finders'
 
 test('cannot visit protected page when signed out', async ({ page }) => {
   // Try to directly access the protected page
-  await page.goto('http://localhost:3000/protected')
+  await page.goto('http://localhost:3000/private')
 
   // Verify we're redirected to the sign-in page
   await verifyOnSignInPage(page)
