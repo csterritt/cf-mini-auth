@@ -14,18 +14,24 @@ import prismaClients from '../lib/prismaClient'
  */
 export const buildIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.INCREMENT, async (c) => {
-    const prisma = await prismaClients.fetch(c.env.DB)
-    const updateInfo = await prisma.count.update({
-      where: {
-        id: 'foo',
-      },
-      data: {
-        count: {
-          increment: 1,
+    try {
+      const prisma = await prismaClients.fetch(c.env.DB)
+      await prisma.count.update({
+        where: {
+          id: 'foo',
         },
-      },
-    })
+        data: {
+          count: {
+            increment: 1,
+          },
+        },
+      })
 
-    return c.redirect(PATHS.COUNT, HTML_STATUS.SEE_OTHER)
+      return c.redirect(PATHS.COUNT, HTML_STATUS.SEE_OTHER)
+    } catch (error) {
+      console.error('Error incrementing count:', error)
+      // Optionally, redirect with an error message or render an error page
+      return c.text('Database error', 500)
+    }
   })
 }

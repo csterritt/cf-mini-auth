@@ -35,19 +35,24 @@ export const buildCount = async (
   app: Hono<{ Bindings: Bindings }>
 ): Promise<void> => {
   app.get(PATHS.COUNT, async (c) => {
-    const prisma = await prismaClients.fetch(c.env.DB)
-    const count = await prisma.count.findFirst({
-      where: {
-        id: 'foo',
-      },
-    })
+    try {
+      const prisma = await prismaClients.fetch(c.env.DB)
+      const count = await prisma.count.findFirst({
+        where: {
+          id: 'foo',
+        },
+      })
 
-    return c.render(
-      renderCount(
-        c,
-        count?.count ?? 0,
-        count == null ? 'No count found' : undefined
+      return c.render(
+        renderCount(
+          c,
+          count?.count ?? 0,
+          count == null ? 'No count found' : undefined
+        )
       )
-    )
+    } catch (error) {
+      console.error('Error fetching count:', error)
+      return c.render(renderCount(c, 0, 'Database error'))
+    }
   })
 }
