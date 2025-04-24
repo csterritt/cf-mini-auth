@@ -6,6 +6,7 @@ import { Hono, Context } from 'hono'
 
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
+import { useLayout } from './buildLayout'
 
 /**
  * Render the JSX for the 404 page.
@@ -30,5 +31,5 @@ const renderNotFound = (c: Context) => {
  * @param app - Hono app instance
  */
 export const build404 = (app: Hono<{ Bindings: Bindings }>): void => {
-  app.notFound((c) => c.render(renderNotFound(c)))
+  app.notFound((c) => c.render(useLayout(c, renderNotFound(c))))
 }

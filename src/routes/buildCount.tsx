@@ -7,6 +7,7 @@ import { Hono, Context } from 'hono'
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import prismaClients from '../lib/prismaClient'
+import { useLayout } from './buildLayout'
 
 /**
  * Render the JSX for the count page.
@@ -44,10 +45,13 @@ export const buildCount = async (
       })
 
       return c.render(
-        renderCount(
+        useLayout(
           c,
-          count?.count ?? 0,
-          count == null ? 'No count found' : undefined
+          renderCount(
+            c,
+            count?.count ?? 0,
+            count == null ? 'No count found' : undefined
+          )
         )
       )
     } catch (error) {
