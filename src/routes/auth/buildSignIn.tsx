@@ -7,12 +7,15 @@ import { Hono, Context } from 'hono'
 import { PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { useLayout } from '../buildLayout'
+import { getCookie } from 'hono/cookie'
+import { COOKIES } from '../../constants'
 
 /**
  * Render the JSX for the sign-in page.
  * @param c - Hono context
  */
 const renderSignIn = (c: Context) => {
+  const emailEntered: string = getCookie(c, COOKIES.EMAIL_ENTERED) ?? ''
   return (
     <div data-testid='sign-in-page-banner'>
       <h3>Sign In</h3>
@@ -30,6 +33,8 @@ const renderSignIn = (c: Context) => {
           required
           className='input input-bordered'
           autoFocus
+          value={emailEntered}
+          data-testid='email-input'
         />
         <button type='submit' className='btn btn-primary' data-testid='submit'>
           Sign In

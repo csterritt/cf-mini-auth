@@ -3,11 +3,11 @@
  * @module routes/auth/handleStartOtp
  */
 import { Hono } from 'hono'
+import { setCookie } from 'hono/cookie'
 
-import { PATHS } from '../../constants'
+import { PATHS, VALIDATION, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError } from '../../support/redirects'
-import { VALIDATION } from '../../constants'
 
 /**
  * Attach the start OTP POST route to the app.
@@ -20,8 +20,16 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     const email =
       typeof formData.email === 'string' ? formData.email.trim() : ''
 
+    // Store the entered email in a cookie
+    setCookie(c, COOKIES.EMAIL_ENTERED, email, COOKIES.STANDARD_COOKIE_OPTIONS)
+
     // Simple email validation (should use shared regex in production)
-    if (!email || !VALIDATION.EMAIL_REGEX.test(email)) {
+    if (
+      !email ||
+      !VALIDATION.EMAIL_REGEX.test(email) ||
+      email.length < 5 ||
+      email.length > 254
+    ) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
