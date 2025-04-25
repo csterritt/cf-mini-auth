@@ -40,6 +40,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     // Check if user exists in the database
     const prisma = await prismaClients.fetch(c.env.DB)
+    // @ts-ignore
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
       return redirectWithError(

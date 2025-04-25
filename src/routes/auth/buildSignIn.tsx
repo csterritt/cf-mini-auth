@@ -40,10 +40,13 @@ const renderSignIn = (c: Context, emailEntered: string) => {
           Sign In
         </button>
       </form>
+
       <p>
-        <a href={PATHS.HOME} data-testid='root-link'>
-          Go home
-        </a>
+        <form method='post' action={PATHS.AUTH.CANCEL_OTP}>
+          <button type='submit' data-testid='cancel-sign-in-link'>
+            Cancel sign in
+          </button>
+        </form>
       </p>
     </div>
   )

@@ -13,6 +13,7 @@ import { buildSignIn } from './routes/auth/buildSignIn'
 import { handleStartOtp } from './routes/auth/handleStartOtp'
 import { handleFinishOtp } from './routes/auth/handleFinishOtp'
 import { buildAwaitCode } from './routes/auth/buildAwaitCode'
+import { handleCancelSignIn } from './routes/auth/handleCancelSignIn'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -27,6 +28,7 @@ buildSignIn(app)
 handleStartOtp(app)
 buildAwaitCode(app)
 handleFinishOtp(app)
+handleCancelSignIn(app)
 
 // this MUST be the last route declared!
 build404(app)

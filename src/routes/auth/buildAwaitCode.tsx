@@ -45,10 +45,13 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
           Verify Code
         </button>
       </form>
+
       <p>
-        <a href={PATHS.HOME} data-testid='cancel-sign-in-link'>
-          Cancel sign in
-        </a>
+        <form method='post' action={PATHS.AUTH.CANCEL_OTP}>
+          <button type='submit' data-testid='cancel-sign-in-link'>
+            Cancel sign in
+          </button>
+        </form>
       </p>
     </div>
   )
