@@ -17,6 +17,6 @@ export const handleCancelSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.AUTH.CANCEL_OTP, (c) => {
     deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
     deleteCookie(c, COOKIES.ERROR_FOUND, { path: '/' })
-    return redirectWithMessage(c, PATHS.AUTH.SIGN_IN, 'Sign in canceled.')
+    return redirectWithMessage(c, PATHS.HOME, 'Sign in canceled.')
   })
 }
