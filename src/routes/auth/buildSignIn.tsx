@@ -16,20 +16,29 @@ const renderSignIn = (c: Context) => {
   return (
     <div data-testid='sign-in-page-banner'>
       <h3>Sign In</h3>
-      <form method='post' action={PATHS.AUTH.SIGN_IN} className='flex flex-col gap-4'>
+      <form
+        method='post'
+        action={PATHS.AUTH.START_OTP}
+        className='flex flex-col gap-4'
+      >
         <label htmlFor='email'>Email</label>
         <input
           id='email'
           name='email'
           type='email'
+          placeholder='Email'
           required
           className='input input-bordered'
           autoFocus
         />
-        <button type='submit' className='btn btn-primary'>Sign In</button>
+        <button type='submit' className='btn btn-primary' data-testid='submit'>
+          Sign In
+        </button>
       </form>
       <p>
-        <a href={PATHS.HOME} data-testid='root-link'>Go home</a>
+        <a href={PATHS.HOME} data-testid='root-link'>
+          Go home
+        </a>
       </p>
     </div>
   )

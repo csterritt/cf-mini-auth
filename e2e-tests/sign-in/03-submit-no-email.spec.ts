@@ -1,11 +1,10 @@
 import { test } from '@playwright/test'
 
-import {
-  verifyOnStartupPage,
-  verifyOnSignInPage,
-} from '../support/page-verifiers'
-import { startSignIn, submitInvalidEmail } from '../support/auth-helpers'
-import { clickLink, fillInput } from '../support/finders'
+import { submitInvalidEmail } from '../support/auth-helpers'
+
+import { verifyOnStartupPage } from '../support/page-verifiers'
+import { startSignIn } from '../support/auth-helpers'
+import { clickLink, fillInput, verifyAlert } from '../support/finders'
 
 test('submitting no email fails', async ({ page }) => {
   // Navigate to startup page and verify
@@ -14,7 +13,5 @@ test('submitting no email fails', async ({ page }) => {
   await startSignIn(page)
 
   // Submit empty email and verify still on the sign in page
-  await fillInput(page, 'email', '')
-  await clickLink(page, 'submit')
-  await verifyOnSignInPage(page)
+  await submitInvalidEmail(page, '')
 })
