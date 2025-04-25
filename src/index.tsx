@@ -11,6 +11,8 @@ import { PATHS } from './constants'
 import { Bindings } from './local-types'
 import { buildSignIn } from './routes/auth/buildSignIn'
 import { handleStartOtp } from './routes/auth/handleStartOtp'
+import { handleFinishOtp } from './routes/auth/handleFinishOtp'
+import { buildAwaitCode } from './routes/auth/buildAwaitCode'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -23,6 +25,8 @@ buildCount(app)
 handleIncrement(app)
 buildSignIn(app)
 handleStartOtp(app)
+buildAwaitCode(app)
+handleFinishOtp(app)
 
 // this MUST be the last route declared!
 build404(app)

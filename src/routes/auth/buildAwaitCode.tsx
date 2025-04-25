@@ -24,7 +24,9 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
         className='flex flex-col gap-4'
       >
         <input type='hidden' name='email' value={emailEntered} />
-        <label htmlFor='otp'>Enter the code sent to your email</label>
+        <label htmlFor='otp' data-testid='please-enter-code-message'>
+          Please enter the code sent to {emailEntered}
+        </label>
         <input
           id='otp'
           name='otp'
@@ -37,7 +39,6 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
           required
           className='input input-bordered'
           autoFocus
-          data-testid='otp-input'
           aria-label='One-time code'
         />
         <button type='submit' className='btn btn-primary' data-testid='submit'>
@@ -45,7 +46,7 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
         </button>
       </form>
       <p>
-        <a href={PATHS.HOME} data-testid='root-link'>
+        <a href={PATHS.HOME} data-testid='cancel-sign-in-link'>
           Cancel sign in
         </a>
       </p>

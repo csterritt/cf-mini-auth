@@ -7,7 +7,8 @@ import { setCookie } from 'hono/cookie'
 
 import { PATHS, VALIDATION, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
-import { redirectWithError } from '../../support/redirects'
+import { redirectWithError, redirectWithMessage } from '../../support/redirects'
+import prismaClients from '../../lib/prismaClient'
 
 /**
  * Attach the start OTP POST route to the app.
@@ -37,12 +38,19 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
+    // Check if user exists in the database
+    const prisma = await prismaClients.fetch(c.env.DB)
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Please enter a valid email address'
+      )
+    }
+
     // TODO: Implement OTP start logic here (send code, etc.)
     // For now, just redirect to sign-in with a success message or next step
-    return redirectWithError(
-      c,
-      PATHS.AUTH.SIGN_IN,
-      'OTP flow not yet implemented'
-    )
+    return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, '')
   })
 }
