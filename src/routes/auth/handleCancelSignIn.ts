@@ -1,5 +1,5 @@
 /**
- * Route handler for canceling sign-in (GET or POST).
+ * Route handler for canceling sign-in (POST).
  * @module routes/auth/handleCancelSignIn
  */
 import { Hono } from 'hono'
@@ -17,6 +17,8 @@ export const handleCancelSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.AUTH.CANCEL_OTP, (c) => {
     deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
     deleteCookie(c, COOKIES.ERROR_FOUND, { path: '/' })
+    deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
     return redirectWithMessage(c, PATHS.HOME, 'Sign in canceled.')
   })
 }

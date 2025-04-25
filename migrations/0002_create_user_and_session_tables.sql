@@ -12,6 +12,7 @@ CREATE TABLE "user" (
 CREATE TABLE "session" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "expiresAt" DATETIME NOT NULL,
+    "signedIn" BOOLEAN NOT NULL,
     "token" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL,
     "updatedAt" DATETIME NOT NULL,

@@ -64,7 +64,7 @@ export const COOKIES = {
   // OTP setup timestamp cookie (encrypted)
   OTP_SETUP: 'OTP_SETUP',
   // Session cookie
-  SESSION: 'better-auth.session_token',
+  SESSION: 'SESSION',
   // Standard cookie options
   STANDARD_COOKIE_OPTIONS: {
     path: '/',

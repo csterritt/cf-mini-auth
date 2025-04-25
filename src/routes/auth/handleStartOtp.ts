@@ -4,6 +4,7 @@
  */
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
+import { ulid } from 'ulid'
 
 import { PATHS, VALIDATION, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
@@ -50,7 +51,32 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
-    // TODO: Implement OTP start logic here (send code, etc.)
+    // Create a new session for the user
+    const sessionId: string = ulid()
+    // Generate a random 6-digit code not starting with zero
+    const sessionToken: string = String(
+      Math.floor(100000 + Math.random() * 900000)
+    )
+    const now = new Date()
+    // Session expires in 15 minutes
+    const expiresAt = new Date(now.getTime() + 15 * 60 * 1000)
+    // @ts-ignore
+    await prisma.session.create({
+      data: {
+        id: sessionId,
+        token: sessionToken,
+        userId: user.id,
+        signedIn: false,
+        createdAt: now,
+        updatedAt: now,
+        expiresAt,
+      },
+    })
+    setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
+
+    // TODO: Send the OTP code to the user
+    console.log(`======> The session token is ${sessionToken}`)
+
     // For now, just redirect to sign-in with a success message or next step
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, '')
   })

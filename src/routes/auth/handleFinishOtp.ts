@@ -3,11 +3,12 @@
  * @module routes/auth/handleFinishOtp
  */
 import { Hono } from 'hono'
-import { setCookie } from 'hono/cookie'
+import { getCookie, deleteCookie } from 'hono/cookie'
 
 import { PATHS, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
-import { redirectWithError } from '../../support/redirects'
+import { redirectWithError, redirectWithMessage } from '../../support/redirects'
+import prismaClients from '../../lib/prismaClient'
 
 /**
  * Attach the finish OTP POST route to the app.
@@ -21,8 +22,15 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       typeof formData.email === 'string' ? formData.email.trim() : ''
     const otp = typeof formData.otp === 'string' ? formData.otp.trim() : ''
 
-    // Store the entered email in a cookie (again, for continuity)
-    setCookie(c, COOKIES.EMAIL_ENTERED, email, COOKIES.STANDARD_COOKIE_OPTIONS)
+    // Get SESSION cookie and check existence
+    const sessionId: string = (getCookie(c, COOKIES.SESSION) ?? '').trim()
+    if (sessionId == '') {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
 
     // Validate OTP (should be 6 digits)
     if (!otp || !/^[0-9]{6}$/.test(otp)) {
@@ -32,12 +40,60 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
         'Please enter a valid 6-digit code.'
       )
     }
-    // TODO: Implement OTP verification logic here (check code, etc.)
-    // For now, just redirect to sign-in with a not-implemented message
-    return redirectWithError(
+
+    // Read session from database
+    const prisma = await prismaClients.fetch(c.env.DB)
+    // @ts-ignore
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId },
+    })
+    if (!session) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
+
+    // @ts-ignore
+    const user = await prisma.user.findUnique({ where: { id: session.userId } })
+    if (!user || user.email !== email) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
+
+    if (session.token !== otp) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.AWAIT_CODE,
+        'Invalid OTP or verification failed'
+      )
+    }
+
+    // Update session: expire in 6 months, set signedIn true
+    const now = new Date()
+    const expiresAt = new Date(now.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
+    // @ts-ignore
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: {
+        signedIn: true,
+        expiresAt,
+        updatedAt: now,
+      },
+    })
+
+    deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
+    deleteCookie(c, COOKIES.ERROR_FOUND, { path: '/' })
+
+    // Redirect to sign-in with a success message (or next step)
+    return redirectWithMessage(
       c,
-      PATHS.AUTH.SIGN_IN,
-      'OTP verification not yet implemented'
+      PATHS.HOME,
+      'You have signed in successfully!'
     )
   })
 }
