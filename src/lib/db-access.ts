@@ -162,3 +162,23 @@ export const incrementCountById = async (
     return Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
+
+/**
+ * Delete a session by ID.
+ * @param db - D1Database instance
+ * @param sessionId - Session ID
+ * @returns Result.ok(true) if deleted, Result.err with error otherwise
+ */
+export const deleteSession = async (
+  db: D1Database,
+  sessionId: string
+): Promise<Result<boolean, Error>> => {
+  try {
+    const prisma = await prismaClients.fetch(db)
+    // @ts-ignore
+    await prisma.session.delete({ where: { id: sessionId } })
+    return Result.ok(true)
+  } catch (e) {
+    return Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}

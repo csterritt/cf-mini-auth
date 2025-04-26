@@ -6,6 +6,7 @@ import { Context } from 'hono'
 import { getCookie, deleteCookie } from 'hono/cookie'
 
 import { COOKIES } from '../constants'
+import { PATHS } from '../constants'
 
 /**
  * Wraps children in a standard layout.
@@ -27,6 +28,26 @@ export function useLayout(c: Context, children: any) {
 
   return (
     <main>
+      <header>
+        <h3>CF Mini Auth Demo</h3>
+
+        {c.env.Session.isNothing && (
+          <p>
+            <a href={PATHS.AUTH.SIGN_IN}>Sign in</a>
+          </p>
+        )}
+
+        {c.env.Session.isJust && (
+          <p>
+            <form method='post' action={PATHS.AUTH.SIGN_OUT}>
+              <button type='submit' data-testid='sign-out-link'>
+                Sign out
+              </button>
+            </form>
+          </p>
+        )}
+      </header>
+
       {message && (
         <div style={{ color: 'green', marginBottom: '15px' }} role='alert'>
           {message}
