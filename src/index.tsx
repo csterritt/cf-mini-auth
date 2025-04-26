@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
+import { secureHeaders } from 'hono/secure-headers'
 
 import { renderer } from './renderer'
 import { buildHome } from './routes/buildHome'
@@ -17,6 +18,7 @@ import { handleCancelSignIn } from './routes/auth/handleCancelSignIn'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
+app.use(secureHeaders())
 app.use(logger())
 app.use(renderer)
 
