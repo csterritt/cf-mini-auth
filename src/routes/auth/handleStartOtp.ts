@@ -6,12 +6,12 @@ import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
 import { ulid } from 'ulid'
 import { isErr } from 'true-myth/result'
-import { isJust, isNothing } from 'true-myth/maybe'
+import { isNothing } from 'true-myth/maybe'
 
 import { PATHS, VALIDATION, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
-import { redirectWithError, redirectWithMessage } from '../../support/redirects'
-import { findUserByEmail, createSession } from '../../support/db-access'
+import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
+import { findUserByEmail, createSession } from '../../lib/db-access'
 
 /**
  * Attach the start OTP POST route to the app.

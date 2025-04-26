@@ -7,8 +7,8 @@ import { isErr } from 'true-myth/result'
 
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
-import { incrementCountById } from '../support/db-access'
-import { redirectWithMessage, redirectWithError } from '../support/redirects'
+import { incrementCountById } from '../lib/db-access'
+import { redirectWithMessage, redirectWithError } from '../lib/redirects'
 
 /**
  * Attach the increment POST route to the app.

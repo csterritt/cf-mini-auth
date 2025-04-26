@@ -1,10 +1,8 @@
 import { createMiddleware } from 'hono/factory'
-import { getCookie } from 'hono/cookie'
-import { PATHS, COOKIES } from '../constants'
-import { findSessionById } from '../support/db-access'
-import { isErr } from 'true-myth/result'
-import { isNothing } from 'true-myth/maybe'
-import { redirectWithError } from '../support/redirects'
+import { Context } from 'hono'
+
+import { PATHS } from '../constants'
+import { redirectWithError } from '../lib/redirects'
 import type { Bindings } from '../local-types'
 
 /**
@@ -12,9 +10,8 @@ import type { Bindings } from '../local-types'
  * If the user is not signed in, redirect to sign-in page with an error message.
  */
 export const signedInAccess = createMiddleware<{ Bindings: Bindings }>(
-  async (c, next) => {
-    const sessionId = getCookie(c, COOKIES.SESSION)
-    if (!sessionId) {
+  async (c: Context, next) => {
+    if (c.env.Session.isNothing) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -22,17 +19,8 @@ export const signedInAccess = createMiddleware<{ Bindings: Bindings }>(
       )
     }
 
-    const sessionResult = await findSessionById(c.env.DB, sessionId)
-    if (isErr(sessionResult)) {
-      return redirectWithError(
-        c,
-        PATHS.AUTH.SIGN_IN,
-        'You must sign in to visit that page'
-      )
-    }
-
-    const maybeSession = sessionResult.value
-    if (isNothing(maybeSession) || !maybeSession.value.signedIn) {
+    const maybeSession = c.env.Session.value
+    if (!maybeSession.value.signedIn) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,

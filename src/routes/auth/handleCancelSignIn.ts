@@ -7,7 +7,7 @@ import { deleteCookie } from 'hono/cookie'
 
 import { PATHS, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
-import { redirectWithMessage } from '../../support/redirects'
+import { redirectWithMessage } from '../../lib/redirects'
 
 /**
  * Attach the cancel sign-in route to the app.

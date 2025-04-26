@@ -9,12 +9,12 @@ import { isNothing } from 'true-myth/maybe'
 
 import { PATHS, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
-import { redirectWithError, redirectWithMessage } from '../../support/redirects'
+import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import {
   findSessionById,
   findUserById,
   updateSessionById,
-} from '../../support/db-access'
+} from '../../lib/db-access'
 
 /**
  * Attach the finish OTP POST route to the app.

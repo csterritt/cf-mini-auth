@@ -6,7 +6,7 @@ import { Hono, Context } from 'hono'
 
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
-import { findCountById } from '../support/db-access'
+import { findCountById } from '../lib/db-access'
 import { useLayout } from './buildLayout'
 import { isErr } from 'true-myth/result'
 import { isJust } from 'true-myth/maybe'

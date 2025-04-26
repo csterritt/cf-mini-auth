@@ -15,12 +15,14 @@ import { handleStartOtp } from './routes/auth/handleStartOtp'
 import { handleFinishOtp } from './routes/auth/handleFinishOtp'
 import { buildAwaitCode } from './routes/auth/buildAwaitCode'
 import { handleCancelSignIn } from './routes/auth/handleCancelSignIn'
+import { provideSession } from './middleware/provide-session'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
 app.use(secureHeaders())
 app.use(logger())
 app.use(renderer)
+app.use(provideSession)
 
 buildHome(app)
 buildPrivate(app)
