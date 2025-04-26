@@ -9,7 +9,7 @@ import { ulid } from 'ulid'
 import { PATHS, VALIDATION, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../support/redirects'
-import prismaClients from '../../lib/prismaClient'
+import { findUserByEmail, createSession } from '../../support/db-access'
 
 /**
  * Attach the start OTP POST route to the app.
@@ -40,9 +40,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // Check if user exists in the database
-    const prisma = await prismaClients.fetch(c.env.DB)
-    // @ts-ignore
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = await findUserByEmail(c.env.DB, email)
     if (!user) {
       return redirectWithError(
         c,
@@ -60,17 +58,14 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     const now = new Date()
     // Session expires in 15 minutes
     const expiresAt = new Date(now.getTime() + 15 * 60 * 1000)
-    // @ts-ignore
-    await prisma.session.create({
-      data: {
-        id: sessionId,
-        token: sessionToken,
-        userId: user.id,
-        signedIn: false,
-        createdAt: now,
-        updatedAt: now,
-        expiresAt,
-      },
+    await createSession(c.env.DB, {
+      id: sessionId,
+      token: sessionToken,
+      userId: user.id,
+      signedIn: false,
+      createdAt: now,
+      updatedAt: now,
+      expiresAt,
     })
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
 

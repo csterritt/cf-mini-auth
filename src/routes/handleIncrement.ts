@@ -6,7 +6,7 @@ import { Hono } from 'hono'
 
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
-import prismaClients from '../lib/prismaClient'
+import { incrementCountById } from '../support/db-access'
 import { redirectWithMessage, redirectWithError } from '../support/redirects'
 
 /**
@@ -16,17 +16,7 @@ import { redirectWithMessage, redirectWithError } from '../support/redirects'
 export const handleIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.INCREMENT, async (c) => {
     try {
-      const prisma = await prismaClients.fetch(c.env.DB)
-      await prisma.count.update({
-        where: {
-          id: 'foo',
-        },
-        data: {
-          count: {
-            increment: 1,
-          },
-        },
-      })
+      await incrementCountById(c.env.DB, 'foo')
 
       return redirectWithMessage(c, PATHS.COUNT, 'Increment successful')
     } catch (error) {

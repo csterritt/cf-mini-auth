@@ -6,7 +6,7 @@ import { Hono, Context } from 'hono'
 
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
-import prismaClients from '../lib/prismaClient'
+import { findCountById } from '../support/db-access'
 import { useLayout } from './buildLayout'
 
 /**
@@ -39,12 +39,7 @@ export const buildCount = async (
 ): Promise<void> => {
   app.get(PATHS.COUNT, async (c) => {
     try {
-      const prisma = await prismaClients.fetch(c.env.DB)
-      const count = await prisma.count.findFirst({
-        where: {
-          id: 'foo',
-        },
-      })
+      const count = await findCountById(c.env.DB, 'foo')
 
       return c.render(
         useLayout(

@@ -8,7 +8,7 @@ import { getCookie, deleteCookie } from 'hono/cookie'
 import { PATHS, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../support/redirects'
-import prismaClients from '../../lib/prismaClient'
+import { findSessionById, findUserById, updateSessionById } from '../../support/db-access'
 
 /**
  * Attach the finish OTP POST route to the app.
@@ -42,11 +42,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // Read session from database
-    const prisma = await prismaClients.fetch(c.env.DB)
-    // @ts-ignore
-    const session = await prisma.session.findUnique({
-      where: { id: sessionId },
-    })
+    const session = await findSessionById(c.env.DB, sessionId)
     if (!session) {
       return redirectWithError(
         c,
@@ -55,8 +51,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
-    // @ts-ignore
-    const user = await prisma.user.findUnique({ where: { id: session.userId } })
+    const user = await findUserById(c.env.DB, session.userId)
     if (!user || user.email !== email) {
       return redirectWithError(
         c,
@@ -76,14 +71,10 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Update session: expire in 6 months, set signedIn true
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
-    // @ts-ignore
-    await prisma.session.update({
-      where: { id: sessionId },
-      data: {
-        signedIn: true,
-        expiresAt,
-        updatedAt: now,
-      },
+    await updateSessionById(c.env.DB, sessionId, {
+      signedIn: true,
+      expiresAt,
+      updatedAt: now,
     })
 
     deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
