@@ -5,6 +5,8 @@
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
 import { ulid } from 'ulid'
+import { isErr } from 'true-myth/result'
+import { isJust, isNothing } from 'true-myth/maybe'
 
 import { PATHS, VALIDATION, COOKIES } from '../../constants'
 import { Bindings } from '../../local-types'
@@ -40,14 +42,19 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // Check if user exists in the database
-    const user = await findUserByEmail(c.env.DB, email)
-    if (!user) {
+    const userResult = await findUserByEmail(c.env.DB, email)
+    if (isErr(userResult)) {
+      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
+    }
+    const maybeUser = userResult.value
+    if (isNothing(maybeUser)) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
         'Please enter a valid email address'
       )
     }
+    const user = maybeUser.value
 
     // Create a new session for the user
     const sessionId: string = ulid()
@@ -58,7 +65,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     const now = new Date()
     // Session expires in 15 minutes
     const expiresAt = new Date(now.getTime() + 15 * 60 * 1000)
-    await createSession(c.env.DB, {
+    const sessionResult = await createSession(c.env.DB, {
       id: sessionId,
       token: sessionToken,
       userId: user.id,
@@ -67,6 +74,9 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       updatedAt: now,
       expiresAt,
     })
+    if (isErr(sessionResult)) {
+      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
+    }
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
 
     // TODO: Send the OTP code to the user

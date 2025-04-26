@@ -8,6 +8,8 @@ import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import { findCountById } from '../support/db-access'
 import { useLayout } from './buildLayout'
+import { isErr } from 'true-myth/result'
+import { isJust } from 'true-myth/maybe'
 
 /**
  * Render the JSX for the count page.
@@ -38,22 +40,17 @@ export const buildCount = async (
   app: Hono<{ Bindings: Bindings }>
 ): Promise<void> => {
   app.get(PATHS.COUNT, async (c) => {
-    try {
-      const count = await findCountById(c.env.DB, 'foo')
-
-      return c.render(
-        useLayout(
-          c,
-          renderCount(
-            c,
-            count?.count ?? 0,
-            count == null ? 'No count found' : undefined
-          )
-        )
-      )
-    } catch (error) {
-      console.error('Error fetching count:', error)
+    const countResult = await findCountById(c.env.DB, 'foo')
+    if (isErr(countResult)) {
       return c.render(renderCount(c, 0, 'Database error'))
+    }
+
+    // Only access .value if Ok
+    const maybeCount = countResult.value
+    if (isJust(maybeCount)) {
+      return c.render(useLayout(c, renderCount(c, maybeCount.value.count)))
+    } else {
+      return c.render(useLayout(c, renderCount(c, 0, 'No count found')))
     }
   })
 }
