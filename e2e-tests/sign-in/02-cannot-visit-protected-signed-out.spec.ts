@@ -11,5 +11,5 @@ test('cannot visit protected page when signed out', async ({ page }) => {
   await verifyOnSignInPage(page)
 
   // Verify the error message is displayed
-  await verifyAlert(page, 'You must be signed in to visit that page')
+  await verifyAlert(page, 'You must sign in to visit that page')
 })

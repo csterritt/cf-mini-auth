@@ -7,6 +7,7 @@ import { Hono, Context } from 'hono'
 import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import { useLayout } from './buildLayout'
+import { signedInAccess } from '../middleware/signed-in-access'
 
 /**
  * Render the JSX for the private page.
@@ -28,5 +29,7 @@ const renderPrivate = (c: Context) => {
  * @param app - Hono app instance
  */
 export const buildPrivate = (app: Hono<{ Bindings: Bindings }>): void => {
-  app.get(PATHS.PRIVATE, (c) => c.render(useLayout(c, renderPrivate(c))))
+  app.get(PATHS.PRIVATE, signedInAccess, (c) =>
+    c.render(useLayout(c, renderPrivate(c)))
+  )
 }
