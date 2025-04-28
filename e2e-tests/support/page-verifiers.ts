@@ -14,7 +14,7 @@ export async function verifyOnAwaitCodePage(page: Page) {
 }
 
 export async function verifyOnProtectedPage(page: Page) {
-  expect(await elementExists(page, 'protected-page-banner')).toBe(true)
+  expect(await elementExists(page, 'private-page-banner')).toBe(true)
 }
 
 export async function verifyOn404Page(page: Page) {

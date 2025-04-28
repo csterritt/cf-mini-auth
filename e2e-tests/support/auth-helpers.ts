@@ -71,7 +71,7 @@ export async function submitValidCode(page: Page, code: string) {
   // Submit code and verify successful sign-in
   await fillInput(page, 'code', code)
   await clickLink(page, 'submit')
-  await verifyAlert(page, 'Sign in successful!')
+  await verifyAlert(page, 'You have signed in successfully!')
 
   // Verify we're on the protected page after successful sign-in
   await verifyOnProtectedPage(page)

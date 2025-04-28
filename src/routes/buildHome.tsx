@@ -17,7 +17,9 @@ const renderHome = (c: Context) => {
     <div data-testid='startup-page-banner'>
       <h3>Hello!</h3>
       <p>
-        <a href={PATHS.PRIVATE}>Go to Private</a>
+        <a href={PATHS.PRIVATE} data-testid='visit-private-link'>
+          Go to Private
+        </a>
       </p>
       <p>
         <a href={PATHS.COUNT} data-testid='visit-count-link'>

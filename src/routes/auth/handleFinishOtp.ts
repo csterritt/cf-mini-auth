@@ -87,11 +87,15 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     if (session.token !== otp) {
-      return redirectWithError(
-        c,
-        PATHS.AUTH.AWAIT_CODE,
-        'Invalid OTP or verification failed'
-      )
+      // PRODUCTION:REMOVE-NEXT-LINE
+      if (otp !== '123456') {
+        return redirectWithError(
+          c,
+          PATHS.AUTH.AWAIT_CODE,
+          'Invalid OTP or verification failed'
+        )
+        // PRODUCTION:REMOVE-NEXT-LINE
+      }
     }
 
     // Update session: expire in 6 months, set signedIn true
@@ -113,7 +117,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Redirect to sign-in with a success message (or next step)
     return redirectWithMessage(
       c,
-      PATHS.HOME,
+      PATHS.PRIVATE,
       'You have signed in successfully!'
     )
   })

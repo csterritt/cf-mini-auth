@@ -15,10 +15,12 @@ import { signedInAccess } from '../middleware/signed-in-access'
  */
 const renderPrivate = (c: Context) => {
   return (
-    <div>
+    <div data-testid='private-page-banner'>
       <h3>Private</h3>
       <p>
-        <a href={PATHS.HOME}>Go home</a>
+        <a href={PATHS.HOME} data-testid='visit-home-link'>
+          Go home
+        </a>
       </p>
     </div>
   )
