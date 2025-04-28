@@ -33,7 +33,9 @@ export function useLayout(c: Context, children: any) {
 
         {c.env.Session.isNothing && (
           <p>
-            <a href={PATHS.AUTH.SIGN_IN}>Sign in</a>
+            <a href={PATHS.AUTH.SIGN_IN} data-testid='sign-in-link'>
+              Sign in
+            </a>
           </p>
         )}
 
