@@ -9,13 +9,14 @@ import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import { incrementCountById } from '../lib/db-access'
 import { redirectWithMessage, redirectWithError } from '../lib/redirects'
+import { signedInAccess } from '../middleware/signed-in-access'
 
 /**
  * Attach the increment POST route to the app.
  * @param app - Hono app instance
  */
 export const handleIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
-  app.post(PATHS.INCREMENT, async (c) => {
+  app.post(PATHS.INCREMENT, signedInAccess, async (c) => {
     const result = await incrementCountById(c.env.DB, 'foo')
     if (isErr(result)) {
       console.error('Error incrementing count:', result.error)
