@@ -8,7 +8,7 @@ import {
   cancelSignIn,
 } from '../support/auth-helpers'
 
-test.skip('submitting an expired code shows token expired error', async ({
+test('submitting an expired code shows token expired error', async ({
   page,
 }) => {
   // Navigate to startup page and verify
@@ -21,4 +21,7 @@ test.skip('submitting an expired code shows token expired error', async ({
 
   // Submit expired code and verify error
   await submitExpiredCode(page, '111111')
+
+  // Cancel to reset internal state
+  await cancelSignIn(page)
 })

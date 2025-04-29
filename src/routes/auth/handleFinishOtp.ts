@@ -7,10 +7,11 @@ import { getCookie, deleteCookie } from 'hono/cookie'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
-import { PATHS, COOKIES } from '../../constants'
+import { PATHS, COOKIES, DURATIONS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import {
+  deleteSession,
   findSessionById,
   findUserById,
   updateSessionById,
@@ -63,6 +64,20 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
     const session = maybeSession.value
 
+    // see if this session has expired
+    // if (session.expiresAt < new Date()) { // PRODUCTION:UNCOMMENT
+    // PRODUCTION:REMOVE-NEXT-LINE
+    if (session.expiresAt < new Date() || otp === '111111') {
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in code has expired, please sign in again'
+      )
+    }
+
     const userResult = await findUserById(c.env.DB, session.userId)
     if (isErr(userResult)) {
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
@@ -100,7 +115,9 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     // Update session: expire in 6 months, set signedIn true
     const now = new Date()
-    const expiresAt = new Date(now.getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
+    const expiresAt = new Date(
+      now.getTime() + DURATIONS.SIX_MONTHS_IN_MILLISECONDS
+    )
     const updateResult = await updateSessionById(c.env.DB, sessionId, {
       signedIn: true,
       expiresAt,

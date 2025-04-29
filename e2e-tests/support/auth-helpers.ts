@@ -104,7 +104,7 @@ export async function submitExpiredCode(page: Page, code: string) {
 
   // Verify we're back on home page with error
   await verifyOnSignInPage(page)
-  await verifyAlert(page, 'OTP has expired, please sign in again')
+  await verifyAlert(page, 'Sign in code has expired, please sign in again')
 }
 
 export async function resendCodeAndVerify(page: Page) {

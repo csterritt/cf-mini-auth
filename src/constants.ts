@@ -78,3 +78,8 @@ export const VALIDATION = {
   // Email validation regex
   EMAIL_REGEX: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
 } as const
+
+export const DURATIONS = {
+  FIFTEEN_MINUTES_IN_MILLISECONDS: 15 * 60 * 1000,
+  SIX_MONTHS_IN_MILLISECONDS: 6 * 30 * 24 * 60 * 60 * 1000,
+}

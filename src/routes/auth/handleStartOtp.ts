@@ -8,7 +8,7 @@ import { ulid } from 'ulid'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
-import { PATHS, VALIDATION, COOKIES } from '../../constants'
+import { PATHS, VALIDATION, COOKIES, DURATIONS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { findUserByEmail, createSession } from '../../lib/db-access'
@@ -79,7 +79,9 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     const sessionToken: string = generateToken()
     const now = new Date()
     // Session expires in 15 minutes
-    const expiresAt = new Date(now.getTime() + 15 * 60 * 1000)
+    const expiresAt = new Date(
+      now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
+    )
     const sessionResult = await createSession(c.env.DB, {
       id: sessionId,
       token: sessionToken,
