@@ -19,6 +19,7 @@ const generateToken = () => {
   // PRODUCTION:REMOVE-NEXT-LINE
   while (
     sessionToken === '' || // PRODUCTION:REMOVE
+    sessionToken === '111111' || // PRODUCTION:REMOVE
     sessionToken === '123456' || // PRODUCTION:REMOVE
     sessionToken === '999999' // PRODUCTION:REMOVE
     // PRODUCTION:REMOVE-NEXT-LINE
