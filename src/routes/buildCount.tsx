@@ -21,7 +21,9 @@ const renderCount = (c: Context, count: number, error?: string) => {
       <h3>Count</h3>
       <p data-testid='count-value'>{error ? `Error ${error}` : count}</p>
       <p>
-        <a href={PATHS.HOME}>Go home</a>
+        <a href={PATHS.HOME} data-testid='visit-home-link'>
+          Go home
+        </a>
       </p>
       <form method='post' action={PATHS.INCREMENT}>
         <button type='submit' data-testid='increment-count-link'>
