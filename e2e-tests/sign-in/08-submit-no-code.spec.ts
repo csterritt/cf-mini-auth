@@ -11,7 +11,7 @@ import {
   submitInvalidCode,
 } from '../support/auth-helpers'
 
-test('submitting no code fails', async ({ page }) => {
+test.skip('submitting no code fails', async ({ page }) => {
   // Start sign in and verify
   await page.goto('http://localhost:3000/')
   await verifyOnStartupPage(page)

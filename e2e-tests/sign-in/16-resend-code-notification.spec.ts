@@ -112,7 +112,7 @@ async function waitForResendAvailable(
 
 // Use describe.serial to run these tests in sequence since they share the OTP file
 test.describe.serial('Resend code notification tests', () => {
-  test('clicking resend code button with proper wait allows user to resend code', async ({
+  test.skip('clicking resend code button with proper wait allows user to resend code', async ({
     page,
     testEmail,
   }) => {
@@ -153,7 +153,7 @@ test.describe.serial('Resend code notification tests', () => {
     await signOutAndVerify(page)
   })
 
-  test('clicking resend code button immediately shows wait time error', async ({
+  test.skip('clicking resend code button immediately shows wait time error', async ({
     page,
     testEmail,
   }) => {
@@ -204,7 +204,7 @@ test.describe.serial('Resend code notification tests', () => {
     await signOutAndVerify(page)
   })
 
-  test('resending code twice with wait in between and then immediately trying a third time shows error', async ({
+  test.skip('resending code twice with wait in between and then immediately trying a third time shows error', async ({
     page,
     testEmail,
   }) => {

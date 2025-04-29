@@ -13,6 +13,23 @@ import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { findUserByEmail, createSession } from '../../lib/db-access'
 
+const generateToken = () => {
+  // Generate a random 6-digit code not starting with zero
+  let sessionToken: string = ''
+  // PRODUCTION:REMOVE-NEXT-LINE
+  while (
+    sessionToken === '' || // PRODUCTION:REMOVE
+    sessionToken === '123456' || // PRODUCTION:REMOVE
+    sessionToken === '999999' // PRODUCTION:REMOVE
+    // PRODUCTION:REMOVE-NEXT-LINE
+  ) {
+    sessionToken = String(Math.floor(100000 + Math.random() * 900000))
+    // PRODUCTION:REMOVE-NEXT-LINE
+  }
+
+  return sessionToken
+}
+
 /**
  * Attach the start OTP POST route to the app.
  * @param app - Hono app instance
@@ -58,10 +75,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     // Create a new session for the user
     const sessionId: string = ulid()
-    // Generate a random 6-digit code not starting with zero
-    const sessionToken: string = String(
-      Math.floor(100000 + Math.random() * 900000)
-    )
+    const sessionToken: string = generateToken()
     const now = new Date()
     // Session expires in 15 minutes
     const expiresAt = new Date(now.getTime() + 15 * 60 * 1000)

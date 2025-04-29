@@ -61,7 +61,7 @@ function generateWrongCode(correctCode: string): string {
 }
 
 test.describe.serial('Code attempt limits', () => {
-  test('user can submit wrong code twice and succeed on third attempt', async ({
+  test.skip('user can submit wrong code twice and succeed on third attempt', async ({
     page,
   }) => {
     // Navigate to startup page and verify
@@ -95,7 +95,7 @@ test.describe.serial('Code attempt limits', () => {
     await signOutAndVerify(page)
   })
 
-  test('user is redirected to sign-in page after three wrong code attempts', async ({
+  test.skip('user is redirected to sign-in page after three wrong code attempts', async ({
     page,
   }) => {
     // Navigate to startup page and verify

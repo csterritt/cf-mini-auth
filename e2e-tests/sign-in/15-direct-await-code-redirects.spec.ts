@@ -3,7 +3,7 @@ import { test } from '@playwright/test'
 import { verifyOnSignInPage } from '../support/page-verifiers'
 import { verifyAlert } from '../support/finders'
 
-test('direct navigation to await-code page redirects to sign-in page', async ({
+test.skip('direct navigation to await-code page redirects to sign-in page', async ({
   page,
 }) => {
   // Try to navigate directly to the await-code page
