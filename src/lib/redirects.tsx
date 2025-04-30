@@ -1,17 +1,7 @@
 import { Context } from 'hono'
 import { setCookie } from 'hono/cookie'
 
-import { COOKIES, IS_PRODUCTION, HTML_STATUS } from '../constants'
-
-/**
- * Creates a cookie string with appropriate security settings
- * @param name - Cookie name
- * @param value - Cookie value
- * @returns Formatted cookie string
- */
-const createCookieString = (name: string, value: string): string => {
-  return `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Strict${IS_PRODUCTION ? '; Secure' : ''}`
-}
+import { COOKIES, HTML_STATUS } from '../constants'
 
 /**
  * Helper function to redirect with a message cookie
@@ -25,7 +15,7 @@ export function redirectWithMessage(
   redirectUrl: string,
   message: string
 ): Response {
-  setCookie(c, COOKIES.MESSAGE_FOUND, message)
+  setCookie(c, COOKIES.MESSAGE_FOUND, message, COOKIES.STANDARD_COOKIE_OPTIONS)
   return c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
 }
 
@@ -41,6 +31,11 @@ export function redirectWithError(
   redirectUrl: string,
   errorMessage: string
 ): Response {
-  setCookie(c, COOKIES.ERROR_FOUND, errorMessage)
+  setCookie(
+    c,
+    COOKIES.ERROR_FOUND,
+    errorMessage,
+    COOKIES.STANDARD_COOKIE_OPTIONS
+  )
   return c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
 }

@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
+  provider        = "prisma-client"
+  output   = "client"
   previewFeatures = ["driverAdapters"] // change from default
 }
 
@@ -30,14 +31,15 @@ model User {
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  signedIn  Boolean
-  token     String
-  createdAt DateTime
-  updatedAt DateTime
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id
+  expiresAt    DateTime
+  signedIn     Boolean
+  token        String
+  attemptCount Int      @default(0)
+  createdAt    DateTime
+  updatedAt    DateTime
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@map("session")

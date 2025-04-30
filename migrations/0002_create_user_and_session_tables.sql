@@ -14,6 +14,7 @@ CREATE TABLE "session" (
     "expiresAt" DATETIME NOT NULL,
     "signedIn" BOOLEAN NOT NULL,
     "token" TEXT NOT NULL,
+    "attemptCount" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL,
     "updatedAt" DATETIME NOT NULL,
     "userId" TEXT NOT NULL,

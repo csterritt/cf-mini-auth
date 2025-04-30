@@ -51,11 +51,16 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Read session from database
     const sessionResult = await findSessionById(c.env.DB, sessionId)
     if (isErr(sessionResult)) {
+      // TODO: clean out session and cookies
+      console.log(
+        `======> Database error getting session: ${sessionResult.error}`
+      )
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
 
     const maybeSession = sessionResult.value
     if (isNothing(maybeSession)) {
+      // TODO: clean out session and cookies
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -80,11 +85,14 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const userResult = await findUserById(c.env.DB, session.userId)
     if (isErr(userResult)) {
+      // TODO: clean out session and cookies
+      console.log(`======> Database error getting user: ${userResult.error}`)
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
 
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
+      // TODO: clean out session and cookies
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -94,6 +102,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const user = maybeUser.value
     if (user.email !== email) {
+      // TODO: clean out session and cookies
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -104,6 +113,8 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     if (session.token !== otp) {
       // PRODUCTION:REMOVE-NEXT-LINE
       if (otp !== '123456') {
+        // TODO: increment attemptCount, see if it's time to fail
+        // TODO: if so, clean out session and cookies
         return redirectWithError(
           c,
           PATHS.AUTH.AWAIT_CODE,
@@ -120,11 +131,17 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     )
     const updateResult = await updateSessionById(c.env.DB, sessionId, {
       signedIn: true,
+      token: '',
+      attemptCount: 0,
       expiresAt,
       updatedAt: now,
     })
 
     if (isErr(updateResult)) {
+      // TODO: figure out what to do here with session and cookies
+      console.log(
+        `======> Database error updating session: ${updateResult.error}`
+      )
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
 
