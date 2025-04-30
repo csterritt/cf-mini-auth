@@ -61,7 +61,7 @@ function generateWrongCode(correctCode: string): string {
 }
 
 test.describe.serial('Code attempt limits', () => {
-  test.skip('user can submit wrong code twice and succeed on third attempt', async ({
+  test('user can submit wrong code twice and succeed on third attempt', async ({
     page,
   }) => {
     // Navigate to startup page and verify
@@ -70,7 +70,7 @@ test.describe.serial('Code attempt limits', () => {
     await startSignIn(page)
 
     // Submit email to get to the code entry page
-    const testEmail = `test-${Date.now()}@team439980.testinator.com`
+    const testEmail = `fredfred@team439980.testinator.com`
     await submitEmail(page, testEmail)
 
     // Read the correct OTP code

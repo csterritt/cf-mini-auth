@@ -81,3 +81,6 @@ export const DURATIONS = {
   FIFTEEN_MINUTES_IN_MILLISECONDS: 15 * 60 * 1000,
   SIX_MONTHS_IN_MILLISECONDS: 6 * 30 * 24 * 60 * 60 * 1000,
 }
+
+// OTP file path used by the backend // PRODUCTION:REMOVE
+export const OTP_FILE_PATH = '/tmp/otp.txt' // PRODUCTION:REMOVE

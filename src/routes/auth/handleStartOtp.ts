@@ -8,12 +8,24 @@ import { ulid } from 'ulid'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
-import { PATHS, VALIDATION, COOKIES, DURATIONS } from '../../constants'
+import {
+  PATHS,
+  VALIDATION,
+  COOKIES,
+  DURATIONS,
+  OTP_FILE_PATH, // PRODUCTION:REMOVE
+} from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { findUserByEmail, createSession } from '../../lib/db-access'
+import { writeFile } from 'fs/promises' // PRODUCTION:REMOVE
 
-const generateToken = () => {
+// PRODUCTION:REMOVE-NEXT-LINE
+const writeOtpCode = async (otpCode: string): Promise<void> => {
+  await writeFile(OTP_FILE_PATH, otpCode, { encoding: 'utf8' }) // PRODUCTION:REMOVE
+} // PRODUCTION:REMOVE
+
+const generateToken = async () => {
   // Generate a random 6-digit code not starting with zero
   let sessionToken: string = ''
   // PRODUCTION:REMOVE-NEXT-LINE
@@ -27,6 +39,8 @@ const generateToken = () => {
     sessionToken = String(Math.floor(100000 + Math.random() * 900000))
     // PRODUCTION:REMOVE-NEXT-LINE
   }
+
+  await writeOtpCode(sessionToken) // PRODUCTION:REMOVE
 
   return sessionToken
 }
@@ -76,7 +90,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     // Create a new session for the user
     const sessionId: string = ulid()
-    const sessionToken: string = generateToken()
+    const sessionToken: string = await generateToken()
     const now = new Date()
     // Session expires in 15 minutes
     const expiresAt = new Date(
