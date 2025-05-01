@@ -17,6 +17,7 @@ import { buildAwaitCode } from './routes/auth/buildAwaitCode'
 import { handleCancelSignIn } from './routes/auth/handleCancelSignIn'
 import { handleSignOut } from './routes/auth/handleSignOut'
 import { provideSession } from './middleware/provide-session'
+import { handleResendCode } from './routes/auth/handleResendCode'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -33,6 +34,7 @@ buildSignIn(app)
 handleStartOtp(app)
 buildAwaitCode(app)
 handleFinishOtp(app)
+handleResendCode(app)
 handleCancelSignIn(app)
 handleSignOut(app)
 

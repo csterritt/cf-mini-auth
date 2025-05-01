@@ -47,6 +47,13 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
         </button>
       </form>
 
+      {/* Resend code form */}
+      <form method='post' action={PATHS.AUTH.RESEND_CODE} className='mt-2'>
+        <button type='submit' className='btn btn-secondary' data-testid='resend-code-btn'>
+          Resend code
+        </button>
+      </form>
+
       <p>
         <form method='post' action={PATHS.AUTH.CANCEL_OTP}>
           <button type='submit' data-testid='cancel-sign-in-link'>
