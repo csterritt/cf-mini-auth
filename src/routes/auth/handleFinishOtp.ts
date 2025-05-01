@@ -113,8 +113,27 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     if (session.token !== otp) {
       // PRODUCTION:REMOVE-NEXT-LINE
       if (otp !== '123456') {
-        // TODO: increment attemptCount, see if it's time to fail
-        // TODO: if so, clean out session and cookies
+        // Increment attemptCount
+        const newAttemptCount: number =
+          (typeof session.attemptCount === 'number'
+            ? session.attemptCount
+            : 0) + 1
+        if (newAttemptCount >= 3) {
+          await deleteSession(c.env.DB, sessionId)
+          deleteCookie(c, COOKIES.SESSION, { path: '/' })
+          return redirectWithError(
+            c,
+            PATHS.AUTH.SIGN_IN,
+            'Too many failed attempts. Please sign in again.'
+          )
+        }
+
+        // Save updated attemptCount in session
+        await updateSessionById(c.env.DB, sessionId, {
+          attemptCount: newAttemptCount,
+          updatedAt: new Date(),
+        })
+
         return redirectWithError(
           c,
           PATHS.AUTH.AWAIT_CODE,
