@@ -78,7 +78,9 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     // see if the user has not waited long enough to ask for another code
     const delta = Date.now() - DURATIONS.THIRTY_SECONDS_IN_MILLISECONDS
     if (session.updatedAt > new Date(delta)) {
-      const secondsLeft = Math.floor(delta / 1000)
+      const secondsLeft = Math.floor(
+        (session.updatedAt.getTime() - delta) / 1000
+      )
 
       return redirectWithError(
         c,

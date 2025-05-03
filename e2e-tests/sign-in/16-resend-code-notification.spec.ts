@@ -186,6 +186,7 @@ test.describe.serial('Resend code notification tests', () => {
     const secondsMatch = alertText?.match(/another (\d+) seconds/)
     expect(secondsMatch).not.toBeNull()
     expect(parseInt(secondsMatch?.[1] || '0')).toBeGreaterThan(0)
+    expect(parseInt(secondsMatch?.[1] || '0')).toBeLessThan(31)
 
     // Wait for resend to become available
     await waitForResendAvailable(page)
@@ -251,6 +252,7 @@ test.describe.serial('Resend code notification tests', () => {
     const secondsMatch = alertText?.match(/another (\d+) seconds/)
     expect(secondsMatch).not.toBeNull()
     expect(parseInt(secondsMatch?.[1] || '0')).toBeGreaterThan(0)
+    expect(parseInt(secondsMatch?.[1] || '0')).toBeLessThan(31)
 
     // Try the third code - should succeed
     await submitValidCode(page, thirdCode)
