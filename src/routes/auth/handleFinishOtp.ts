@@ -60,7 +60,8 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const maybeSession = sessionResult.value
     if (isNothing(maybeSession)) {
-      // TODO: clean out session and cookies
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -92,7 +93,9 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
-      // TODO: clean out session and cookies
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -102,7 +105,10 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const user = maybeUser.value
     if (user.email !== email) {
-      // TODO: clean out session and cookies
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+      deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
+
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -121,6 +127,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
         if (newAttemptCount >= 3) {
           await deleteSession(c.env.DB, sessionId)
           deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
           return redirectWithError(
             c,
             PATHS.AUTH.SIGN_IN,
@@ -161,6 +168,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       console.log(
         `======> Database error updating session: ${updateResult.error}`
       )
+
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
 

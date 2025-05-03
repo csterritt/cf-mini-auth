@@ -3,9 +3,22 @@
  * @module routes/auth/handleResendCode
  */
 import { Hono } from 'hono'
-import { PATHS } from '../../constants'
+import { deleteCookie, getCookie } from 'hono/cookie'
+import { isErr } from 'true-myth/result'
+import { isNothing } from 'true-myth/maybe'
+
+import { DURATIONS, PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithMessage } from '../../lib/redirects'
+import { COOKIES } from '../../constants'
+import { redirectWithError } from '../../lib/redirects'
+import {
+  deleteSession,
+  findSessionById,
+  findUserById,
+  updateSessionById,
+} from '../../lib/db-access'
+import { generateToken } from '../../lib/generate-code'
 
 /**
  * Attach the resend OTP POST route to the app.
@@ -13,6 +26,112 @@ import { redirectWithMessage } from '../../lib/redirects'
  */
 export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.AUTH.RESEND_CODE, async (c) => {
+    // Validate and handle OTP finish logic
+    const formData = await c.req.parseBody()
+    const email =
+      typeof formData.email === 'string' ? formData.email.trim() : ''
+
+    // Get SESSION cookie and check existence
+    const sessionId: string = (getCookie(c, COOKIES.SESSION) ?? '').trim()
+    if (sessionId == '') {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
+
+    // Read session from database
+    const sessionResult = await findSessionById(c.env.DB, sessionId)
+    if (isErr(sessionResult)) {
+      // TODO: clean out session and cookies
+      console.log(
+        `======> Database error getting session: ${sessionResult.error}`
+      )
+      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
+    }
+
+    const maybeSession = sessionResult.value
+    if (isNothing(maybeSession)) {
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
+    const session = maybeSession.value
+
+    // see if this session has expired
+    if (session.expiresAt < new Date()) {
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in code has expired, please sign in again'
+      )
+    }
+
+    const userResult = await findUserById(c.env.DB, session.userId)
+    if (isErr(userResult)) {
+      // TODO: clean out session and cookies
+      console.log(`======> Database error getting user: ${userResult.error}`)
+      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
+    }
+
+    const maybeUser = userResult.value
+    if (isNothing(maybeUser)) {
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+      deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
+
+    const user = maybeUser.value
+    if (user.email !== email) {
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+      deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Sign in flow problem, please sign in again'
+      )
+    }
+
+    // Update session: expire in 15 minutes
+    const now = new Date()
+    const expiresAt = new Date(
+      now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
+    )
+    const sessionToken: string = await generateToken()
+    const updateResult = await updateSessionById(c.env.DB, sessionId, {
+      token: sessionToken,
+      expiresAt,
+      updatedAt: now,
+    })
+
+    if (isErr(updateResult)) {
+      // TODO: figure out what to do here with session and cookies
+      console.log(
+        `======> Database error updating session: ${updateResult.error}`
+      )
+
+      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
+    }
+
+    // TODO: Send the OTP code to the user
+    console.log(`======> The session token is ${sessionToken}`)
+
     // In a real implementation, you would trigger the resend logic here.
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, 'Code sent!')
   })

@@ -1,18 +1,16 @@
 import { test as baseTest, expect, Page } from '@playwright/test'
 import * as fs from 'fs'
 import { setTimeout } from 'timers/promises'
-import * as path from 'path'
 
 import { verifyOnStartupPage } from '../support/page-verifiers'
 import {
   startSignIn,
   submitEmail,
-  resendCodeAndVerify,
   submitBadCode,
   submitValidCode,
   signOutAndVerify,
 } from '../support/auth-helpers'
-import { clickLink, verifyAlert } from '../support/finders'
+import { clickLink } from '../support/finders'
 
 // Fixed OTP file path used by the backend
 const OTP_FILE_PATH = '/tmp/otp.txt'
@@ -33,7 +31,7 @@ const test = baseTest.extend<TestFixture>({
   },
   testEmail: async ({ testId }, use) => {
     // Create a unique email for each test run
-    await use(`fredfred+${testId}@team439980.testinator.com`)
+    await use(`fredfred@team439980.testinator.com`)
   },
 })
 
@@ -112,7 +110,7 @@ async function waitForResendAvailable(
 
 // Use describe.serial to run these tests in sequence since they share the OTP file
 test.describe.serial('Resend code notification tests', () => {
-  test.skip('clicking resend code button with proper wait allows user to resend code', async ({
+  test('clicking resend code button with proper wait allows user to resend code', async ({
     page,
     testEmail,
   }) => {

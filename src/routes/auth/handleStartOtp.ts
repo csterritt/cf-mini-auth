@@ -8,42 +8,11 @@ import { ulid } from 'ulid'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
-import {
-  PATHS,
-  VALIDATION,
-  COOKIES,
-  DURATIONS,
-  OTP_FILE_PATH, // PRODUCTION:REMOVE
-} from '../../constants'
+import { PATHS, VALIDATION, COOKIES, DURATIONS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { findUserByEmail, createSession } from '../../lib/db-access'
-import { writeFile } from 'fs/promises' // PRODUCTION:REMOVE
-
-// PRODUCTION:REMOVE-NEXT-LINE
-const writeOtpCode = async (otpCode: string): Promise<void> => {
-  await writeFile(OTP_FILE_PATH, otpCode, { encoding: 'utf8' }) // PRODUCTION:REMOVE
-} // PRODUCTION:REMOVE
-
-const generateToken = async () => {
-  // Generate a random 6-digit code not starting with zero
-  let sessionToken: string = ''
-  // PRODUCTION:REMOVE-NEXT-LINE
-  while (
-    sessionToken === '' || // PRODUCTION:REMOVE
-    sessionToken === '111111' || // PRODUCTION:REMOVE
-    sessionToken === '123456' || // PRODUCTION:REMOVE
-    sessionToken === '999999' // PRODUCTION:REMOVE
-    // PRODUCTION:REMOVE-NEXT-LINE
-  ) {
-    sessionToken = String(Math.floor(100000 + Math.random() * 900000))
-    // PRODUCTION:REMOVE-NEXT-LINE
-  }
-
-  await writeOtpCode(sessionToken) // PRODUCTION:REMOVE
-
-  return sessionToken
-}
+import { generateToken } from '../../lib/generate-code'
 
 /**
  * Attach the start OTP POST route to the app.
@@ -78,6 +47,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     if (isErr(userResult)) {
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
+
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
       return redirectWithError(
@@ -105,7 +75,9 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       updatedAt: now,
       expiresAt,
     })
+
     if (isErr(sessionResult)) {
+      // TODO: Figure out what to do here with session and cookies
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
@@ -113,7 +85,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // TODO: Send the OTP code to the user
     console.log(`======> The session token is ${sessionToken}`)
 
-    // For now, just redirect to sign-in with a success message or next step
+    // For now, just redirect to await code page
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, '')
   })
 }
