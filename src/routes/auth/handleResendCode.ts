@@ -75,6 +75,18 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
+    // see if the user has not waited long enough to ask for another code
+    const delta = Date.now() - DURATIONS.THIRTY_SECONDS_IN_MILLISECONDS
+    if (session.updatedAt > new Date(delta)) {
+      const secondsLeft = Math.floor(delta / 1000)
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.AWAIT_CODE,
+        `Please wait another ${secondsLeft} seconds before asking for another code`
+      )
+    }
+
     const userResult = await findUserById(c.env.DB, session.userId)
     if (isErr(userResult)) {
       // TODO: clean out session and cookies

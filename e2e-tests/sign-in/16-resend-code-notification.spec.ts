@@ -151,7 +151,7 @@ test.describe.serial('Resend code notification tests', () => {
     await signOutAndVerify(page)
   })
 
-  test.skip('clicking resend code button immediately shows wait time error', async ({
+  test('clicking resend code button immediately shows wait time error', async ({
     page,
     testEmail,
   }) => {
@@ -202,7 +202,7 @@ test.describe.serial('Resend code notification tests', () => {
     await signOutAndVerify(page)
   })
 
-  test.skip('resending code twice with wait in between and then immediately trying a third time shows error', async ({
+  test('resending code twice with wait in between and then immediately trying a third time shows error', async ({
     page,
     testEmail,
   }) => {
