@@ -1,6 +1,4 @@
 import { test } from '@playwright/test'
-import * as fs from 'fs'
-import { setTimeout } from 'timers/promises'
 
 import {
   verifyOnStartupPage,

@@ -4,7 +4,6 @@
  * @module lib/time-access
  */
 let startTime: Date | null = null
-let startTimeDelta: number = 0
 let startTimeSetAt: number = 0
 
 export const getCurrentTime = (...args: any[]): Date => {
@@ -42,7 +41,6 @@ export const getCurrentTime = (...args: any[]): Date => {
 export const setCurrentTime = (time: Date) => {
   startTime = time
   startTimeSetAt = Date.now()
-  startTimeDelta = startTimeSetAt - time.getTime()
 }
 
 export const clearCurrentTime = () => {

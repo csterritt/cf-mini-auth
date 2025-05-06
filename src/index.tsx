@@ -37,10 +37,11 @@ handleStartOtp(app)
 buildAwaitCode(app)
 handleFinishOtp(app)
 handleResendCode(app)
-handleSetClock(app) // PRODUCTION:REMOVE
-handleResetClock(app) // PRODUCTION:REMOVE
 handleCancelSignIn(app)
 handleSignOut(app)
+
+handleSetClock(app) // PRODUCTION:REMOVE
+handleResetClock(app) // PRODUCTION:REMOVE
 
 // this MUST be the last route declared!
 build404(app)
