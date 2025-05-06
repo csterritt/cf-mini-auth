@@ -14,37 +14,10 @@ import {
   signOutAndVerify,
 } from '../support/auth-helpers'
 import { clickLink, fillInput, verifyAlert } from '../support/finders'
+import { readOtpCode } from '../support/read-otp-code'
 
 // Fixed OTP file path used by the backend
 const OTP_FILE_PATH = '/tmp/otp.txt'
-
-// Helper function to read OTP code with retries and clear the file after reading
-async function readOtpCode(maxRetries = 10, retryDelay = 200): Promise<string> {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      if (fs.existsSync(OTP_FILE_PATH)) {
-        const code = fs.readFileSync(OTP_FILE_PATH, 'utf8').trim()
-        if (code.length > 0) {
-          console.log(`Read OTP code: ${code}`)
-
-          // Clear the file after reading to avoid conflicts with other tests
-          fs.writeFileSync(OTP_FILE_PATH, '')
-
-          return code
-        }
-      }
-    } catch (e) {
-      console.log(
-        `Error reading OTP file (attempt ${attempt + 1}/${maxRetries}):`,
-        e
-      )
-    }
-    await setTimeout(retryDelay)
-  }
-  throw new Error(
-    `Failed to read OTP code from ${OTP_FILE_PATH} after ${maxRetries} attempts`
-  )
-}
 
 // Generate a wrong code by modifying the correct code
 function generateWrongCode(correctCode: string): string {
