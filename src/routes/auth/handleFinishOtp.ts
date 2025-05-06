@@ -16,6 +16,7 @@ import {
   findUserById,
   updateSessionById,
 } from '../../lib/db-access'
+import { getCurrentTime } from '../../lib/time-access'
 
 /**
  * Attach the finish OTP POST route to the app.
@@ -71,9 +72,8 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     const session = maybeSession.value
 
     // see if this session has expired
-    // if (session.expiresAt < new Date()) { // PRODUCTION:UNCOMMENT
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (session.expiresAt < new Date() || otp === '111111') {
+    const now = getCurrentTime()
+    if (session.expiresAt < now) {
       await deleteSession(c.env.DB, sessionId)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
@@ -138,7 +138,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
         // Save updated attemptCount in session
         await updateSessionById(c.env.DB, sessionId, {
           attemptCount: newAttemptCount,
-          updatedAt: new Date(),
+          updatedAt: getCurrentTime(),
         })
 
         return redirectWithError(
@@ -151,16 +151,16 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // Update session: expire in 6 months, set signedIn true
-    const now = new Date()
-    const expiresAt = new Date(
-      now.getTime() + DURATIONS.SIX_MONTHS_IN_MILLISECONDS
+    const now2 = getCurrentTime()
+    const expiresAt = getCurrentTime(
+      now2.getTime() + DURATIONS.SIX_MONTHS_IN_MILLISECONDS
     )
     const updateResult = await updateSessionById(c.env.DB, sessionId, {
       signedIn: true,
       token: '',
       attemptCount: 0,
       expiresAt,
-      updatedAt: now,
+      updatedAt: now2,
     })
 
     if (isErr(updateResult)) {

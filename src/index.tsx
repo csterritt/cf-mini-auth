@@ -18,6 +18,8 @@ import { handleCancelSignIn } from './routes/auth/handleCancelSignIn'
 import { handleSignOut } from './routes/auth/handleSignOut'
 import { provideSession } from './middleware/provide-session'
 import { handleResendCode } from './routes/auth/handleResendCode'
+import { handleSetClock } from './routes/auth/handleSetClock' // PRODUCTION:REMOVE
+import { handleResetClock } from './routes/auth/handleResetClock' // PRODUCTION:REMOVE
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -35,6 +37,8 @@ handleStartOtp(app)
 buildAwaitCode(app)
 handleFinishOtp(app)
 handleResendCode(app)
+handleSetClock(app) // PRODUCTION:REMOVE
+handleResetClock(app) // PRODUCTION:REMOVE
 handleCancelSignIn(app)
 handleSignOut(app)
 

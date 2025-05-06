@@ -19,6 +19,7 @@ import {
   updateSessionById,
 } from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
+import { getCurrentTime } from '../../lib/time-access'
 
 /**
  * Attach the resend OTP POST route to the app.
@@ -64,7 +65,8 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     const session = maybeSession.value
 
     // see if this session has expired
-    if (session.expiresAt < new Date()) {
+    const now = getCurrentTime()
+    if (session.expiresAt < now) {
       await deleteSession(c.env.DB, sessionId)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
@@ -76,11 +78,9 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // see if the user has not waited long enough to ask for another code
-    const delta = Date.now() - DURATIONS.THIRTY_SECONDS_IN_MILLISECONDS
-    if (session.updatedAt > new Date(delta)) {
-      const secondsLeft = Math.floor(
-        (session.updatedAt.getTime() - delta) / 1000
-      )
+    const ago = now.getTime() - DURATIONS.THIRTY_SECONDS_IN_MILLISECONDS
+    if (session.updatedAt.getTime() > ago) {
+      const secondsLeft = Math.floor((session.updatedAt.getTime() - ago) / 1000)
 
       return redirectWithError(
         c,
@@ -123,15 +123,14 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // Update session: expire in 15 minutes
-    const now = new Date()
-    const expiresAt = new Date(
+    const expiresAt = getCurrentTime(
       now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
     )
     const sessionToken: string = await generateToken()
     const updateResult = await updateSessionById(c.env.DB, sessionId, {
       token: sessionToken,
       expiresAt,
-      updatedAt: now,
+      updatedAt: getCurrentTime(),
     })
 
     if (isErr(updateResult)) {

@@ -44,6 +44,10 @@ export const PATHS = {
     // Resend OTP code
     RESEND_CODE: '/auth/resend-code',
 
+    // Set and reset clock (for testing)
+    SET_CLOCK: '/auth/set-clock',
+    RESET_CLOCK: '/auth/reset-clock',
+
     // Sign out
     SIGN_OUT: '/auth/sign-out',
   },

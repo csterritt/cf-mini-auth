@@ -16,9 +16,6 @@ import {
 import { clickLink, fillInput, verifyAlert } from '../support/finders'
 import { readOtpCode } from '../support/read-otp-code'
 
-// Fixed OTP file path used by the backend
-const OTP_FILE_PATH = '/tmp/otp.txt'
-
 // Generate a wrong code by modifying the correct code
 function generateWrongCode(correctCode: string): string {
   // If the code is numeric, add 1 to each digit (wrapping 9 to 0)

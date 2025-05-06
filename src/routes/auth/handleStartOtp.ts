@@ -13,6 +13,7 @@ import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { findUserByEmail, createSession } from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
+import { getCurrentTime } from '../../lib/time-access'
 
 /**
  * Attach the start OTP POST route to the app.
@@ -61,11 +62,12 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Create a new session for the user
     const sessionId: string = ulid()
     const sessionToken: string = await generateToken()
-    const now = new Date()
+    const now = getCurrentTime()
     // Session expires in 15 minutes
-    const expiresAt = new Date(
+    const expiresAt = getCurrentTime(
       now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
     )
+
     const sessionResult = await createSession(c.env.DB, {
       id: sessionId,
       token: sessionToken,
