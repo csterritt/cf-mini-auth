@@ -5,6 +5,12 @@
 import prismaClients from '../lib/prismaClient'
 import Maybe from 'true-myth/maybe'
 import Result from 'true-myth/result'
+import retry from 'async-retry'
+
+const STANDARD_RETRY_OPTIONS = {
+  minTimeout: 200,
+  retries: 5,
+} as const
 
 /**
  * Find a user by email address.
@@ -13,6 +19,12 @@ import Result from 'true-myth/result'
  * @returns Result with Maybe.just(user) or Maybe.nothing if not found, or Result.err with error
  */
 export const findUserByEmail = async (
+  db: D1Database,
+  email: string
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(() => findUserByEmailActual(db, email), STANDARD_RETRY_OPTIONS)
+
+const findUserByEmailActual = async (
   db: D1Database,
   email: string
 ): Promise<Result<Maybe<any>, Error>> => {
@@ -36,6 +48,12 @@ export const findUserByEmail = async (
 export const findUserById = async (
   db: D1Database,
   userId: string
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(() => findUserByIdActual(db, userId), STANDARD_RETRY_OPTIONS)
+
+const findUserByIdActual = async (
+  db: D1Database,
+  userId: string
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
     const prisma = await prismaClients.fetch(db)
@@ -57,6 +75,12 @@ export const findUserById = async (
 export const createSession = async (
   db: D1Database,
   sessionData: Record<string, unknown>
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(() => createSessionActual(db, sessionData), STANDARD_RETRY_OPTIONS)
+
+const createSessionActual = async (
+  db: D1Database,
+  sessionData: Record<string, unknown>
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
     const prisma = await prismaClients.fetch(db)
@@ -76,6 +100,12 @@ export const createSession = async (
  * @returns Result with Maybe.just(session) or Maybe.nothing if not found, or Result.err with error
  */
 export const findSessionById = async (
+  db: D1Database,
+  sessionId: string
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(() => findSessionByIdActual(db, sessionId), STANDARD_RETRY_OPTIONS)
+
+const findSessionByIdActual = async (
   db: D1Database,
   sessionId: string
 ): Promise<Result<Maybe<any>, Error>> => {
@@ -103,6 +133,16 @@ export const updateSessionById = async (
   db: D1Database,
   sessionId: string,
   updateData: Record<string, unknown>
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(
+    () => updateSessionByIdActual(db, sessionId, updateData),
+    STANDARD_RETRY_OPTIONS
+  )
+
+const updateSessionByIdActual = async (
+  db: D1Database,
+  sessionId: string,
+  updateData: Record<string, unknown>
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
     const prisma = await prismaClients.fetch(db)
@@ -127,6 +167,12 @@ export const updateSessionById = async (
 export const findCountById = async (
   db: D1Database,
   countId: string
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(() => findCountByIdActual(db, countId), STANDARD_RETRY_OPTIONS)
+
+const findCountByIdActual = async (
+  db: D1Database,
+  countId: string
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
     const prisma = await prismaClients.fetch(db)
@@ -146,6 +192,12 @@ export const findCountById = async (
  * @returns Result with Maybe.just(updated) or Maybe.nothing if not updated, or Result.err with error
  */
 export const incrementCountById = async (
+  db: D1Database,
+  countId: string
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(() => incrementCountByIdActual(db, countId), STANDARD_RETRY_OPTIONS)
+
+const incrementCountByIdActual = async (
   db: D1Database,
   countId: string
 ): Promise<Result<Maybe<any>, Error>> => {
@@ -170,6 +222,12 @@ export const incrementCountById = async (
  * @returns Result.ok(true) if deleted, Result.err with error otherwise
  */
 export const deleteSession = async (
+  db: D1Database,
+  sessionId: string
+): Promise<Result<boolean, Error>> =>
+  retry(() => deleteSessionActual(db, sessionId), STANDARD_RETRY_OPTIONS)
+
+const deleteSessionActual = async (
   db: D1Database,
   sessionId: string
 ): Promise<Result<boolean, Error>> => {
