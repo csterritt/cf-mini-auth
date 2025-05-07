@@ -9,6 +9,7 @@ import { PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { useLayout } from '../buildLayout'
 import { COOKIES } from '../../constants'
+import { redirectWithMessage } from '../../lib/redirects'
 
 /**
  * Render the JSX for the sign-in page.
@@ -58,6 +59,16 @@ const renderSignIn = (c: Context, emailEntered: string) => {
  */
 export const buildSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.AUTH.SIGN_IN, (c) => {
+    if (
+      c.env.Session != null &&
+      c.env.Session.isJust &&
+      c.env.Session.value.isJust &&
+      c.env.Session.value.value.signedIn === true
+    ) {
+      console.log('Already signed in')
+      return redirectWithMessage(c, PATHS.HOME, 'You are already signed in.')
+    }
+
     const emailEntered: string = getCookie(c, COOKIES.EMAIL_ENTERED) ?? ''
 
     return c.render(useLayout(c, renderSignIn(c, emailEntered)))

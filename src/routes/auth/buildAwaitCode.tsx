@@ -9,7 +9,7 @@ import { PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { useLayout } from '../buildLayout'
 import { COOKIES } from '../../constants'
-import { redirectWithError } from '../../lib/redirects'
+import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 
 /**
  * Render the JSX for the await code page.
@@ -76,13 +76,22 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
  */
 export const buildAwaitCode = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.AUTH.AWAIT_CODE, (c) => {
-    if (c.env.Session === undefined || c.env.Session.isNothing) {
+    if (
+      c.env.Session == null ||
+      c.env.Session.isNothing ||
+      c.env.Session.value.isNothing
+    ) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
         'Sign in flow problem, please sign in again'
       )
     }
+
+    if (c.env.Session.value.value.signedIn) {
+      return redirectWithMessage(c, PATHS.HOME, 'You are already signed in.')
+    }
+
     const emailEntered: string = getCookie(c, COOKIES.EMAIL_ENTERED) ?? ''
 
     return c.render(useLayout(c, renderAwaitCode(c, emailEntered)))
