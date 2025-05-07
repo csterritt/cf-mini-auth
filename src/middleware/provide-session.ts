@@ -22,7 +22,7 @@ export const provideSession = createMiddleware<{ Bindings: Bindings }>(
         console.error('Error finding session:', sessionResult.error)
         c.env.Session = Maybe.nothing()
       } else {
-        c.env.Session = Maybe.just(sessionResult.value)
+        c.env.Session = sessionResult.value
       }
     }
 

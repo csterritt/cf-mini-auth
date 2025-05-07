@@ -20,7 +20,7 @@ export const signedInAccess = createMiddleware<{ Bindings: Bindings }>(
     }
 
     const maybeSession = c.env.Session.value
-    if (!maybeSession.value.signedIn) {
+    if (!maybeSession.signedIn) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,

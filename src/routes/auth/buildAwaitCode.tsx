@@ -76,11 +76,7 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
  */
 export const buildAwaitCode = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.AUTH.AWAIT_CODE, (c) => {
-    if (
-      c.env.Session == null ||
-      c.env.Session.isNothing ||
-      c.env.Session.value.isNothing
-    ) {
+    if (c.env.Session == null || c.env.Session.isNothing) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -88,7 +84,7 @@ export const buildAwaitCode = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
-    if (c.env.Session.value.value.signedIn) {
+    if (c.env.Session.value.signedIn) {
       return redirectWithMessage(c, PATHS.HOME, 'You are already signed in.')
     }
 

@@ -62,8 +62,7 @@ export const buildSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
     if (
       c.env.Session != null &&
       c.env.Session.isJust &&
-      c.env.Session.value.isJust &&
-      c.env.Session.value.value.signedIn === true
+      c.env.Session.value.signedIn === true
     ) {
       console.log('Already signed in')
       return redirectWithMessage(c, PATHS.HOME, 'You are already signed in.')
