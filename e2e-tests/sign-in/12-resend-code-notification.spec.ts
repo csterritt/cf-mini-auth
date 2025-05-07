@@ -9,7 +9,6 @@ import {
   signOutAndVerify,
 } from '../support/auth-helpers'
 import { clickLink } from '../support/finders'
-import { readOtpCode } from '../support/read-otp-code'
 
 // Create a test fixture with isolated test context
 type TestFixture = {
@@ -67,12 +66,19 @@ test.describe.serial('Resend code notification tests', () => {
       await verifyOnStartupPage(page)
       await startSignIn(page)
 
-      // Submit unique email to get to the await code page
+      // Capture the response to get the session token from the headers
+      let responsePromise = page.waitForResponse('**/auth/**')
+
+      // Submit known email and verify success
       await submitEmail(page, testEmail)
 
+      let response = await responsePromise
+
+      let headers = response.headers()
+      const firstCode = headers['x-session-token']
+
       // Read the first OTP code using our retry mechanism
-      const firstCode = await readOtpCode()
-      console.log('First code:', firstCode)
+      console.log('First code:', JSON.stringify(firstCode))
 
       // Jump ahead 4 seconds to ensure resend becomes available
       await page.goto(
@@ -80,12 +86,18 @@ test.describe.serial('Resend code notification tests', () => {
       )
       await page.goto('http://localhost:3000/auth/await-code')
 
+      // Capture the response to get the session token from the headers
+      responsePromise = page.waitForResponse('**/auth/**')
+
       // Try to resend code and verify it succeeds
       const resendSucceeded = await tryResendCode(page)
       expect(resendSucceeded).toBe(true)
 
       // Read the second OTP code with retries
-      const secondCode = await readOtpCode()
+      response = await responsePromise
+
+      headers = response.headers()
+      const secondCode = headers['x-session-token']
       console.log('Second code:', secondCode)
 
       // Verify we got a different code
@@ -116,11 +128,17 @@ test.describe.serial('Resend code notification tests', () => {
       await verifyOnStartupPage(page)
       await startSignIn(page)
 
+      // Capture the response to get the session token from the headers
+      let responsePromise = page.waitForResponse('**/auth/**')
+
       // Submit unique email to get to the await code page
       await submitEmail(page, testEmail)
 
-      // Read the first OTP code with retries
-      const firstCode = await readOtpCode()
+      // Get the response
+      let response = await responsePromise
+
+      let headers = response.headers()
+      const firstCode = headers['x-session-token']
       console.log('First code:', firstCode)
 
       // Click resend button immediately (without waiting)
@@ -149,11 +167,18 @@ test.describe.serial('Resend code notification tests', () => {
         `http://localhost:3000/auth/set-clock/${new Date().getTime() + 4000}`
       )
       await page.goto('http://localhost:3000/auth/await-code')
+
+      // Capture the response to get the session token from the headers
+      responsePromise = page.waitForResponse('**/auth/**')
+
       // Click the resend button
       await clickLink(page, 'resend-code-button')
 
-      // Read the second OTP code with retries
-      const secondCode = await readOtpCode()
+      // Get the response
+      response = await responsePromise
+
+      headers = response.headers()
+      const secondCode = headers['x-session-token']
       console.log('Second code:', secondCode)
       expect(secondCode).not.toBe(firstCode)
 
@@ -179,11 +204,17 @@ test.describe.serial('Resend code notification tests', () => {
       await verifyOnStartupPage(page)
       await startSignIn(page)
 
+      // Capture the response to get the session token from the headers
+      let responsePromise = page.waitForResponse('**/auth/**')
+
       // Submit unique email to get to the await code page
       await submitEmail(page, testEmail)
 
-      // Read the first OTP code with retries
-      const firstCode = await readOtpCode()
+      // Get the response
+      let response = await responsePromise
+
+      let headers = response.headers()
+      const firstCode = headers['x-session-token']
       console.log('First code:', firstCode)
 
       // Jump ahead 4 seconds to ensure resend becomes available
@@ -191,11 +222,18 @@ test.describe.serial('Resend code notification tests', () => {
         `http://localhost:3000/auth/set-clock/${new Date().getTime() + 4000}`
       )
       await page.goto('http://localhost:3000/auth/await-code')
+
+      // Capture the response to get the session token from the headers
+      responsePromise = page.waitForResponse('**/auth/**')
+
       // Click the resend button
       await clickLink(page, 'resend-code-button')
 
-      // Read the second OTP code with retries
-      const secondCode = await readOtpCode()
+      // Get the response
+      response = await responsePromise
+
+      headers = response.headers()
+      const secondCode = headers['x-session-token']
       console.log('Second code:', secondCode)
       expect(secondCode).not.toBe(firstCode)
 
@@ -204,11 +242,18 @@ test.describe.serial('Resend code notification tests', () => {
         `http://localhost:3000/auth/set-clock/${new Date().getTime() + 8000}`
       )
       await page.goto('http://localhost:3000/auth/await-code')
+
+      // Capture the response to get the session token from the headers
+      responsePromise = page.waitForResponse('**/auth/**')
+
       // Click the resend button
       await clickLink(page, 'resend-code-button')
 
-      // Read the third OTP code with retries
-      const thirdCode = await readOtpCode()
+      // Get the response
+      response = await responsePromise
+
+      headers = response.headers()
+      const thirdCode = headers['x-session-token']
       console.log('Third code:', thirdCode)
       expect(thirdCode).not.toBe(secondCode)
 

@@ -143,6 +143,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // TODO: Send the OTP code to the user
+    c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
     console.log(`======> The session token is ${sessionToken}`)
 
     // In a real implementation, you would trigger the resend logic here.

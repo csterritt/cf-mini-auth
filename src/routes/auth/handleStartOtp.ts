@@ -83,9 +83,10 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
+    c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
 
     // TODO: Send the OTP code to the user
-    console.log(`======> The session token is ${sessionToken}`)
+    console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
 
     // For now, just redirect to await code page
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, '')

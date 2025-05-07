@@ -12,7 +12,6 @@ import {
   signOutAndVerify,
 } from '../support/auth-helpers'
 import { clickLink, fillInput, verifyAlert } from '../support/finders'
-import { readOtpCode } from '../support/read-otp-code'
 
 // Generate a wrong code by modifying the correct code
 function generateWrongCode(correctCode: string): string {
@@ -37,12 +36,18 @@ test.describe.serial('Code attempt limits', () => {
     await verifyOnStartupPage(page)
     await startSignIn(page)
 
+    // Capture the response to get the session token from the headers
+    let responsePromise = page.waitForResponse('**/auth/**')
+
     // Submit email to get to the code entry page
     const testEmail = `fredfred@team439980.testinator.com`
     await submitEmail(page, testEmail)
 
-    // Read the correct OTP code
-    const correctCode = await readOtpCode()
+    // Get the response
+    let response = await responsePromise
+
+    let headers = response.headers()
+    const correctCode = headers['x-session-token']
     console.log('Correct code:', correctCode)
 
     // Generate an incorrect code
@@ -71,12 +76,18 @@ test.describe.serial('Code attempt limits', () => {
     await verifyOnStartupPage(page)
     await startSignIn(page)
 
+    // Capture the response to get the session token from the headers
+    let responsePromise = page.waitForResponse('**/auth/**')
+
     // Submit email to get to the code entry page
     const testEmail = `fredfred@team439980.testinator.com`
     await submitEmail(page, testEmail)
 
-    // Read the correct OTP code
-    const correctCode = await readOtpCode()
+    // Get the response
+    let response = await responsePromise
+
+    let headers = response.headers()
+    const correctCode = headers['x-session-token']
     console.log('Correct code:', correctCode)
 
     // Generate an incorrect code

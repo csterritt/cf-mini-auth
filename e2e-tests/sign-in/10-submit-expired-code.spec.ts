@@ -7,7 +7,6 @@ import {
   submitExpiredCode,
   cancelSignIn,
 } from '../support/auth-helpers'
-import { readOtpCode } from '../support/read-otp-code'
 
 test('submitting an expired code shows token expired error', async ({
   page,
@@ -22,12 +21,18 @@ test('submitting an expired code shows token expired error', async ({
     await verifyOnStartupPage(page)
     await startSignIn(page)
 
+    // Capture the response to get the session token from the headers
+    const responsePromise = page.waitForResponse('**/auth/**')
+
     // Submit known email and verify success
     await submitEmail(page, 'fredfred@team439980.testinator.com')
+    const response = await responsePromise
+
+    const headers = response.headers()
+    const firstCode = headers['x-session-token']
 
     // Read the first OTP code using our retry mechanism
-    const firstCode = await readOtpCode()
-    console.log('First code:', firstCode)
+    console.log('First code:', JSON.stringify(firstCode))
 
     // Move the clock forward to make the code expired
     await page.goto(`http://localhost:3000/auth/reset-clock`)
