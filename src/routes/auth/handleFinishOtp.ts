@@ -3,7 +3,7 @@
  * @module routes/auth/handleFinishOtp
  */
 import { Hono } from 'hono'
-import { getCookie, deleteCookie } from 'hono/cookie'
+import { getCookie, deleteCookie, setCookie } from 'hono/cookie'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
@@ -174,6 +174,10 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
     deleteCookie(c, COOKIES.ERROR_FOUND, { path: '/' })
+    setCookie(c, COOKIES.SESSION, sessionId, {
+      ...COOKIES.STANDARD_COOKIE_OPTIONS,
+      expires: expiresAt,
+    })
 
     // Redirect to sign-in with a success message (or next step)
     return redirectWithMessage(

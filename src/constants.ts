@@ -45,8 +45,8 @@ export const PATHS = {
     RESEND_CODE: '/auth/resend-code',
 
     // Set and reset clock (for testing)
-    SET_CLOCK: '/auth/set-clock',
-    RESET_CLOCK: '/auth/reset-clock',
+    SET_CLOCK: '/auth/set-clock', // PRODUCTION:REMOVE
+    RESET_CLOCK: '/auth/reset-clock', // PRODUCTION:REMOVE
 
     // Sign out
     SIGN_OUT: '/auth/sign-out',
