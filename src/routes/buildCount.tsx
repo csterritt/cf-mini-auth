@@ -44,7 +44,13 @@ export const buildCount = async (
   app.get(PATHS.COUNT, async (c) => {
     const countResult = await findCountById(c.env.DB, 'foo')
     if (isErr(countResult)) {
-      return c.render(renderCount(c, 0, 'Database error'))
+      return c.render(
+        renderCount(
+          c,
+          0,
+          `======> buildCount: Database error ${countResult.error}`
+        )
+      )
     }
 
     // Only access .value if Ok

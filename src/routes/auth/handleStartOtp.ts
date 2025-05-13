@@ -46,6 +46,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Check if user exists in the database
     const userResult = await findUserByEmail(c.env.DB, email)
     if (isErr(userResult)) {
+      console.log(`======> Database error getting user: ${userResult.error}`)
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
 
@@ -81,6 +82,9 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     if (isErr(sessionResult)) {
       // TODO: Figure out what to do here with session and cookies
+      console.log(
+        `======> Database error getting session: ${sessionResult.error}`
+      )
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)

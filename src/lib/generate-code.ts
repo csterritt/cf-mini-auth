@@ -8,7 +8,7 @@ export const generateToken = async () => {
     sessionToken === '999999' // PRODUCTION:REMOVE
     // PRODUCTION:REMOVE-NEXT-LINE
   ) {
-    sessionToken = String(Math.floor(100000 + Math.random() * 900000))
+    sessionToken = String(Math.floor(100_000 + Math.random() * 900_000))
     // PRODUCTION:REMOVE-NEXT-LINE
   }
 

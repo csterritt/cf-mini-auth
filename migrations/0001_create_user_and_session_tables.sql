@@ -1,4 +1,10 @@
 -- CreateTable
+CREATE TABLE "Count" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "count" INTEGER NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "email" TEXT NOT NULL,
@@ -23,6 +29,3 @@ CREATE TABLE "session" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "session_token_key" ON "session"("token");

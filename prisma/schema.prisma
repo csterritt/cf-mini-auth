@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client"
-  output   = "client"
+  output          = "client"
   previewFeatures = ["driverAdapters"] // change from default
 }
 
@@ -14,7 +14,7 @@ datasource db {
 
 // Create a simple model database
 model Count {
-  id    String @id  @default(uuid())
+  id    String @id @default(uuid())
   count Int
 }
 
@@ -41,6 +41,5 @@ model Session {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }

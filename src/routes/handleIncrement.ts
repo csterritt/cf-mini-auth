@@ -19,7 +19,7 @@ export const handleIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.INCREMENT, signedInAccess, async (c) => {
     const result = await incrementCountById(c.env.DB, 'foo')
     if (isErr(result)) {
-      console.error('Error incrementing count:', result.error)
+      console.error('======> Error incrementing count:', result.error)
       return redirectWithError(c, PATHS.COUNT, 'Database error')
     }
 
