@@ -13,7 +13,7 @@ test('submitting an expired code shows token expired error', async ({
 }) => {
   try {
     // Set the clock to sixteen minutes ago
-    const ago = Date.now() - 16 * 60 * 1000
+    const ago = -16 * 60 * 1000
     await page.goto(`http://localhost:3000/auth/set-clock/${ago}`)
 
     // Navigate to startup page and verify

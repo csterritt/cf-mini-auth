@@ -62,9 +62,10 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Create a new session for the user
     const sessionId: string = ulid()
     const sessionToken: string = await generateToken()
-    const now = getCurrentTime()
+    const now = getCurrentTime(c)
     // Session expires in 15 minutes
     const expiresAt = getCurrentTime(
+      c,
       now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
     )
 

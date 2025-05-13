@@ -81,9 +81,7 @@ test.describe.serial('Resend code notification tests', () => {
       console.log('First code:', JSON.stringify(firstCode))
 
       // Jump ahead 4 seconds to ensure resend becomes available
-      await page.goto(
-        `http://localhost:3000/auth/set-clock/${new Date().getTime() + 4000}`
-      )
+      await page.goto(`http://localhost:3000/auth/set-clock/${4000}`)
       await page.goto('http://localhost:3000/auth/await-code')
 
       // Capture the response to get the session token from the headers
@@ -163,9 +161,7 @@ test.describe.serial('Resend code notification tests', () => {
       expect(parseInt(secondsMatch?.[1] || '0')).toBeLessThan(31)
 
       // Jump ahead 4 seconds to ensure resend becomes available
-      await page.goto(
-        `http://localhost:3000/auth/set-clock/${new Date().getTime() + 4000}`
-      )
+      await page.goto(`http://localhost:3000/auth/set-clock/${4000}`)
       await page.goto('http://localhost:3000/auth/await-code')
 
       // Capture the response to get the session token from the headers
@@ -218,9 +214,7 @@ test.describe.serial('Resend code notification tests', () => {
       console.log('First code:', firstCode)
 
       // Jump ahead 4 seconds to ensure resend becomes available
-      await page.goto(
-        `http://localhost:3000/auth/set-clock/${new Date().getTime() + 4000}`
-      )
+      await page.goto(`http://localhost:3000/auth/set-clock/${4000}`)
       await page.goto('http://localhost:3000/auth/await-code')
 
       // Capture the response to get the session token from the headers
@@ -238,9 +232,7 @@ test.describe.serial('Resend code notification tests', () => {
       expect(secondCode).not.toBe(firstCode)
 
       // Jump ahead another 4 seconds to ensure resend becomes available
-      await page.goto(
-        `http://localhost:3000/auth/set-clock/${new Date().getTime() + 8000}`
-      )
+      await page.goto(`http://localhost:3000/auth/set-clock/${8000}`)
       await page.goto('http://localhost:3000/auth/await-code')
 
       // Capture the response to get the session token from the headers

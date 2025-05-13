@@ -65,7 +65,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     const session = maybeSession.value
 
     // see if this session has expired
-    const now = getCurrentTime()
+    const now = getCurrentTime(c)
     if (session.expiresAt < now) {
       await deleteSession(c.env.DB, sessionId)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
@@ -124,13 +124,14 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
 
     // Update session: expire in 15 minutes
     const expiresAt = getCurrentTime(
+      c,
       now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
     )
     const sessionToken: string = await generateToken()
     const updateResult = await updateSessionById(c.env.DB, sessionId, {
       token: sessionToken,
       expiresAt,
-      updatedAt: getCurrentTime(),
+      updatedAt: getCurrentTime(c),
     })
 
     if (isErr(updateResult)) {

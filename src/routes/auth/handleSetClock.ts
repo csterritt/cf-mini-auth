@@ -6,17 +6,17 @@ import { Hono } from 'hono'
 import { PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithMessage } from '../../lib/redirects'
-import { setCurrentTime, getCurrentTime } from '../../lib/time-access'
+import { setCurrentDelta } from '../../lib/time-access'
 
 /**
  * Attach the set clock GET route to the app.
  * @param app - Hono app instance
  */
 export const handleSetClock = (app: Hono<{ Bindings: Bindings }>): void => {
-  app.get(`${PATHS.AUTH.SET_CLOCK}/:timestamp`, async (c) => {
+  app.get(`${PATHS.AUTH.SET_CLOCK}/:delta`, async (c) => {
     // return redirectWithMessage(c, PATHS.HOME, '') // PRODUCTION:UNCOMMENT
-    const timestamp = parseInt(c.req.param('timestamp'))
-    setCurrentTime(new Date(timestamp))
+    const delta = parseInt(c.req.param('delta'))
+    setCurrentDelta(c, delta)
 
     // For test: pretend to set the server clock (no-op in prod)
     // Accept a timestamp or ISO string in the body (for extensibility)
