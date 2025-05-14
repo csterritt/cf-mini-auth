@@ -8,6 +8,7 @@ import { PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import { useLayout } from './buildLayout'
 import { signedInAccess } from '../middleware/signed-in-access'
+import { reloadOnBackButton } from '../lib/reload-on-back-button'
 
 /**
  * Render the JSX for the private page.
@@ -23,21 +24,7 @@ const renderPrivate = (c: Context) => {
         </a>
       </p>
 
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            const observer = new PerformanceObserver((list) => {
-              list.getEntries().forEach((entry) => {
-               if (entry.type === "back_forward") {
-                 window.location.reload();
-               }
-              });
-            });
-
-            observer.observe({ type: "navigation", buffered: true });
-          `,
-        }}
-      ></script>
+      {reloadOnBackButton()}
     </div>
   )
 }

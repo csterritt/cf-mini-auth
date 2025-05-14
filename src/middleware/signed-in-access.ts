@@ -4,6 +4,7 @@ import { Context } from 'hono'
 import { PATHS } from '../constants'
 import { redirectWithError } from '../lib/redirects'
 import type { Bindings } from '../local-types'
+import { setupNoCacheHeaders } from '../lib/setup-no-cache-headers'
 
 /**
  * Middleware to restrict access to signed-in users only.
@@ -28,10 +29,7 @@ export const signedInAccess = createMiddleware<{ Bindings: Bindings }>(
       )
     }
 
-    // Set no-cache headers for signed-in users
-    c.header('Cache-Control', 'no-cache, no-store, must-revalidate')
-    c.header('Pragma', 'no-cache')
-    c.header('Expires', '0')
+    setupNoCacheHeaders(c)
 
     await next()
   }
