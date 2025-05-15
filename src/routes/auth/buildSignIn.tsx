@@ -10,10 +10,13 @@ import { Bindings } from '../../local-types'
 import { useLayout } from '../buildLayout'
 import { COOKIES } from '../../constants'
 import { redirectWithMessage } from '../../lib/redirects'
+import { setupNoCacheHeaders } from '../../lib/setup-no-cache-headers'
+import { reloadOnBackButton } from '../../lib/reload-on-back-button'
 
 /**
  * Render the JSX for the sign-in page.
  * @param c - Hono context
+ * @param emailEntered - email entered by user, if any
  */
 const renderSignIn = (c: Context, emailEntered: string) => {
   return (
@@ -49,6 +52,8 @@ const renderSignIn = (c: Context, emailEntered: string) => {
           </button>
         </form>
       </p>
+
+      {reloadOnBackButton()}
     </div>
   )
 }
@@ -59,17 +64,19 @@ const renderSignIn = (c: Context, emailEntered: string) => {
  */
 export const buildSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.AUTH.SIGN_IN, (c) => {
-    if (
-      c.env.Session != null &&
-      c.env.Session.isJust &&
-      c.env.Session.value.signedIn === true
-    ) {
+    if (c.env.Session.isJust && c.env.Session.value.signedIn === true) {
       console.log('Already signed in')
       return redirectWithMessage(c, PATHS.HOME, 'You are already signed in.')
     }
 
+    if (c.env.Session.isJust && c.env.Session.value.signedIn !== true) {
+      console.log('Already in the process of signing in')
+      return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, '')
+    }
+
     const emailEntered: string = getCookie(c, COOKIES.EMAIL_ENTERED) ?? ''
 
+    setupNoCacheHeaders(c)
     return c.render(useLayout(c, renderSignIn(c, emailEntered)))
   })
 }
