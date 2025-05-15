@@ -29,6 +29,11 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     // Store the entered email in a cookie
     setCookie(c, COOKIES.EMAIL_ENTERED, email, COOKIES.STANDARD_COOKIE_OPTIONS)
 
+    // Is there a session already?
+    if (c.env.Session.isJust && c.env.Session.value.signedIn) {
+      return redirectWithError(c, PATHS.PRIVATE, 'Already signed in')
+    }
+
     // Simple email validation (should use shared regex in production)
     if (
       !email ||

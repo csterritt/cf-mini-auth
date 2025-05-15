@@ -12,7 +12,6 @@ import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import {
   deleteSession,
-  findSessionById,
   findUserById,
   updateSessionById,
 } from '../../lib/db-access'
@@ -30,9 +29,8 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       typeof formData.email === 'string' ? formData.email.trim() : ''
     const otp = typeof formData.otp === 'string' ? formData.otp.trim() : ''
 
-    // Get SESSION cookie and check existence
-    const sessionId: string = (getCookie(c, COOKIES.SESSION) ?? '').trim()
-    if (sessionId == '') {
+    // No session?
+    if (c.env.Session.isNothing) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -49,32 +47,12 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
-    // Read session from database
-    const sessionResult = await findSessionById(c.env.DB, sessionId)
-    if (isErr(sessionResult)) {
-      // TODO: clean out session and cookies
-      console.log(
-        `======> Database error getting session: ${sessionResult.error}`
-      )
-      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
-    }
-
-    const maybeSession = sessionResult.value
-    if (isNothing(maybeSession)) {
-      deleteCookie(c, COOKIES.SESSION, { path: '/' })
-
-      return redirectWithError(
-        c,
-        PATHS.AUTH.SIGN_IN,
-        'Sign in flow problem, please sign in again'
-      )
-    }
-    const session = maybeSession.value
+    const session = c.env.Session.value
 
     // see if this session has expired
     const now = getCurrentTime(c)
     if (session.expiresAt < now) {
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
       return redirectWithError(
@@ -93,7 +71,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
       return redirectWithError(
@@ -105,7 +83,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const user = maybeUser.value
     if (user.email !== email) {
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
       deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
 
@@ -125,7 +103,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
             ? session.attemptCount
             : 0) + 1
         if (newAttemptCount >= 3) {
-          await deleteSession(c.env.DB, sessionId)
+          await deleteSession(c.env.DB, session.id)
           deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
           return redirectWithError(
@@ -136,7 +114,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
         }
 
         // Save updated attemptCount in session
-        await updateSessionById(c.env.DB, sessionId, {
+        await updateSessionById(c.env.DB, session.id, {
           attemptCount: newAttemptCount,
           updatedAt: getCurrentTime(c),
         })
@@ -156,7 +134,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       c,
       now2.getTime() + DURATIONS.SIX_MONTHS_IN_MILLISECONDS
     )
-    const updateResult = await updateSessionById(c.env.DB, sessionId, {
+    const updateResult = await updateSessionById(c.env.DB, session.id, {
       signedIn: true,
       token: '',
       attemptCount: 0,
@@ -175,7 +153,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
     deleteCookie(c, COOKIES.ERROR_FOUND, { path: '/' })
-    setCookie(c, COOKIES.SESSION, sessionId, {
+    setCookie(c, COOKIES.SESSION, session.id, {
       ...COOKIES.STANDARD_COOKIE_OPTIONS,
       expires: expiresAt,
     })
