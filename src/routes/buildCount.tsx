@@ -41,9 +41,7 @@ const renderCount = (c: Context, count: number, error?: string) => {
  * Attach the count route to the app.
  * @param app - Hono app instance
  */
-export const buildCount = async (
-  app: Hono<{ Bindings: Bindings }>
-): Promise<void> => {
+export const buildCount = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.COUNT, async (c) => {
     // Check for DB_FAIL_COUNT cookie using getCookie // PRODUCTION:REMOVE
     let dbFailCount: CountAndDecrement | undefined = undefined
