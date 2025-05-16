@@ -20,6 +20,7 @@ import { provideSession } from './middleware/provide-session'
 import { handleResendCode } from './routes/auth/handleResendCode'
 import { handleSetClock } from './routes/auth/handleSetClock' // PRODUCTION:REMOVE
 import { handleResetClock } from './routes/auth/handleResetClock' // PRODUCTION:REMOVE
+import { handleSetDbFailures } from './routes/handleSetDbFailures' // PRODUCTION:REMOVE
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -42,6 +43,7 @@ handleSignOut(app)
 
 handleSetClock(app) // PRODUCTION:REMOVE
 handleResetClock(app) // PRODUCTION:REMOVE
+handleSetDbFailures(app) // PRODUCTION:REMOVE
 
 // this MUST be the last route declared!
 build404(app)

@@ -3,8 +3,9 @@
  * @module routes/buildCount
  */
 import { Hono, Context } from 'hono'
+import { getCookie } from 'hono/cookie'
 
-import { PATHS } from '../constants'
+import { COOKIES, PATHS } from '../constants'
 import { Bindings } from '../local-types'
 import { findCountById } from '../lib/db-access'
 import { useLayout } from './buildLayout'
@@ -19,7 +20,9 @@ const renderCount = (c: Context, count: number, error?: string) => {
   return (
     <div>
       <h3>Count</h3>
-      <p data-testid='count-value'>{error ? `Error ${error}` : count}</p>
+      <p data-testid='count-value'>
+        {error ? `Internal problem: ${error}` : count}
+      </p>
       <p>
         <a href={PATHS.HOME} data-testid='visit-home-link'>
           Go home
@@ -42,15 +45,18 @@ export const buildCount = async (
   app: Hono<{ Bindings: Bindings }>
 ): Promise<void> => {
   app.get(PATHS.COUNT, async (c) => {
-    const countResult = await findCountById(c.env.DB, 'foo')
+    // Check for DB_FAIL_COUNT cookie using getCookie // PRODUCTION:REMOVE
+    let dbFailCount: number | undefined = undefined // PRODUCTION:REMOVE
+    const failCountCookie = getCookie(c, COOKIES.DB_FAIL_COUNT) // PRODUCTION:REMOVE
+    // PRODUCTION:REMOVE-NEXT-LINE
+    if (failCountCookie && !isNaN(Number(failCountCookie))) {
+      dbFailCount = Number(failCountCookie) // PRODUCTION:REMOVE
+      // PRODUCTION:REMOVE-NEXT-LINE
+    }
+
+    const countResult = await findCountById(c.env.DB, 'foo', dbFailCount)
     if (isErr(countResult)) {
-      return c.render(
-        renderCount(
-          c,
-          0,
-          `======> buildCount: Database error ${countResult.error}`
-        )
-      )
+      return c.render(renderCount(c, 0, `Database error`))
     }
 
     // Only access .value if Ok

@@ -44,9 +44,12 @@ export const PATHS = {
     // Resend OTP code
     RESEND_CODE: '/auth/resend-code',
 
-    // Set and reset clock (for testing)
+    // Set and reset clock (for testing) // PRODUCTION:REMOVE
     SET_CLOCK: '/auth/set-clock', // PRODUCTION:REMOVE
     RESET_CLOCK: '/auth/reset-clock', // PRODUCTION:REMOVE
+
+    // Set DB failures (for testing) // PRODUCTION:REMOVE
+    SET_DB_FAILURES: '/auth/set-db-failures', // PRODUCTION:REMOVE
 
     // Sign out
     SIGN_OUT: '/auth/sign-out',
@@ -65,6 +68,8 @@ export const COOKIES = {
   OTP_SETUP: 'OTP_SETUP',
   // Session cookie
   SESSION: 'SESSION',
+  // DB failure count cookie for testing // PRODUCTION:REMOVE
+  DB_FAIL_COUNT: 'DB_FAIL_COUNT', // PRODUCTION:REMOVE
   // Standard cookie options
   STANDARD_COOKIE_OPTIONS: {
     path: '/',

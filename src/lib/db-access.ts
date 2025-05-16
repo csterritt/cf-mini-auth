@@ -8,7 +8,8 @@ import Result from 'true-myth/result'
 import retry from 'async-retry'
 
 const STANDARD_RETRY_OPTIONS = {
-  minTimeout: 200,
+  // minTimeout: 200, // PRODUCTION:UNCOMMENT
+  minTimeout: 20, // PRODUCTION:REMOVE
   retries: 5,
 } as const
 
@@ -159,63 +160,6 @@ const updateSessionByIdActual = async (
 }
 
 /**
- * Find the count record by id.
- * @param db - D1Database instance
- * @param countId - Count record id
- * @returns Result with Maybe.just(count) or Maybe.nothing if not found, or Result.err with error
- */
-export const findCountById = async (
-  db: D1Database,
-  countId: string
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(() => findCountByIdActual(db, countId), STANDARD_RETRY_OPTIONS)
-
-const findCountByIdActual = async (
-  db: D1Database,
-  countId: string
-): Promise<Result<Maybe<any>, Error>> => {
-  try {
-    const prisma = await prismaClients.fetch(db)
-    // @ts-ignore
-    const count = await prisma.count.findFirst({ where: { id: countId } })
-
-    return Result.ok(count ? Maybe.just(count) : Maybe.nothing())
-  } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
-  }
-}
-
-/**
- * Increment the count record by id.
- * @param db - D1Database instance
- * @param countId - Count record id
- * @returns Result with Maybe.just(updated) or Maybe.nothing if not updated, or Result.err with error
- */
-export const incrementCountById = async (
-  db: D1Database,
-  countId: string
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(() => incrementCountByIdActual(db, countId), STANDARD_RETRY_OPTIONS)
-
-const incrementCountByIdActual = async (
-  db: D1Database,
-  countId: string
-): Promise<Result<Maybe<any>, Error>> => {
-  try {
-    const prisma = await prismaClients.fetch(db)
-    // @ts-ignore
-    const updated = await prisma.count.update({
-      where: { id: countId },
-      data: { count: { increment: 1 } },
-    })
-
-    return Result.ok(updated ? Maybe.just(updated) : Maybe.nothing())
-  } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
-  }
-}
-
-/**
  * Delete a session by ID.
  * @param db - D1Database instance
  * @param sessionId - Session ID
@@ -236,6 +180,93 @@ const deleteSessionActual = async (
     // @ts-ignore
     await prisma.session.delete({ where: { id: sessionId } })
     return Result.ok(true)
+  } catch (e) {
+    return Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
+
+/**
+ * Find the count record by id.
+ * @param db - D1Database instance
+ * @param countId - Count record id
+ * @param failureCount - Optional number of failures to simulate (for testing)
+ * @returns Result with Maybe.just(count) or Maybe.nothing if not found, or Result.err with error
+ */
+export const findCountById = async (
+  db: D1Database,
+  countId: string,
+  failureCount?: number
+): Promise<Result<Maybe<any>, Error>> => {
+  let res = Result.ok(Maybe.nothing()) as Result<Maybe<any>, Error>
+  try {
+    res = await retry(async (bail, attemptNumber) => {
+      if (failureCount != null && failureCount > 0) {
+        failureCount -= 1
+      }
+
+      const res = await findCountByIdActual(db, countId, failureCount)
+
+      return res
+    }, STANDARD_RETRY_OPTIONS)
+  } catch (err) {
+    console.log(`findCountById final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
+
+const findCountByIdActual = async (
+  db: D1Database,
+  countId: string,
+  failureCount?: number
+): Promise<Result<Maybe<any>, Error>> => {
+  try {
+    if (failureCount != null && failureCount > 0) {
+      throw new Error('Simulated DB failure')
+    }
+
+    const prisma = await prismaClients.fetch(db)
+    // @ts-ignore
+    const count = await prisma.count.findFirst({ where: { id: countId } })
+
+    return Result.ok(count ? Maybe.just(count) : Maybe.nothing())
+  } catch (e) {
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
+
+/**
+ * Increment the count record by id.
+ * @param db - D1Database instance
+ * @param countId - Count record id
+ * @param failureCount - Optional number of failures to simulate (for testing)
+ * @returns Result with Maybe.just(updated) or Maybe.nothing if not updated, or Result.err with error
+ */
+export const incrementCountById = async (
+  db: D1Database,
+  countId: string,
+  failureCount?: number
+): Promise<Result<Maybe<any>, Error>> =>
+  retry(
+    () => incrementCountByIdActual(db, countId, failureCount),
+    STANDARD_RETRY_OPTIONS
+  )
+
+const incrementCountByIdActual = async (
+  db: D1Database,
+  countId: string,
+  failureCount?: number
+): Promise<Result<Maybe<any>, Error>> => {
+  try {
+    const prisma = await prismaClients.fetch(db)
+    // @ts-ignore
+    const updated = await prisma.count.update({
+      where: { id: countId },
+      data: { count: { increment: 1 } },
+    })
+
+    return Result.ok(updated ? Maybe.just(updated) : Maybe.nothing())
   } catch (e) {
     return Result.err(e instanceof Error ? e : new Error(String(e)))
   }
