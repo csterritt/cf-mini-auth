@@ -16,13 +16,18 @@ import { redirectWithMessage } from '../lib/redirects'
 export const handleSetDbFailures = (
   app: Hono<{ Bindings: Bindings }>
 ): void => {
-  app.get(`${PATHS.AUTH.SET_DB_FAILURES}/:times`, async (c) => {
+  app.get(`${PATHS.AUTH.SET_DB_FAILURES}/:name/:times`, async (c) => {
+    const name = c.req.param('name')
+    if (!name || name.trim() === '') {
+      return redirectWithMessage(c, PATHS.HOME, 'Invalid name parameter')
+    }
+
     const times = c.req.param('times')
     if (!times || isNaN(Number(times))) {
       return redirectWithMessage(c, PATHS.HOME, 'Invalid times parameter')
     }
 
-    setCookie(c, COOKIES.DB_FAIL_COUNT, times, COOKIES.STANDARD_COOKIE_OPTIONS)
+    setCookie(c, name, times, COOKIES.STANDARD_COOKIE_OPTIONS)
 
     return redirectWithMessage(c, PATHS.HOME, ``)
   })

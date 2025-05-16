@@ -6,7 +6,7 @@ import { Hono, Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 import { COOKIES, PATHS } from '../constants'
-import { Bindings } from '../local-types'
+import { Bindings, CountAndDecrement } from '../local-types'
 import { findCountById } from '../lib/db-access'
 import { useLayout } from './buildLayout'
 import { isErr } from 'true-myth/result'
@@ -46,13 +46,12 @@ export const buildCount = async (
 ): Promise<void> => {
   app.get(PATHS.COUNT, async (c) => {
     // Check for DB_FAIL_COUNT cookie using getCookie // PRODUCTION:REMOVE
-    let dbFailCount: number | undefined = undefined // PRODUCTION:REMOVE
+    let dbFailCount: CountAndDecrement | undefined = undefined
     const failCountCookie = getCookie(c, COOKIES.DB_FAIL_COUNT) // PRODUCTION:REMOVE
     // PRODUCTION:REMOVE-NEXT-LINE
     if (failCountCookie && !isNaN(Number(failCountCookie))) {
-      dbFailCount = Number(failCountCookie) // PRODUCTION:REMOVE
-      // PRODUCTION:REMOVE-NEXT-LINE
-    }
+      dbFailCount = new CountAndDecrement(Number(failCountCookie)) // PRODUCTION:REMOVE
+    } // PRODUCTION:REMOVE
 
     const countResult = await findCountById(c.env.DB, 'foo', dbFailCount)
     if (isErr(countResult)) {

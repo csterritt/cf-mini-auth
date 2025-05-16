@@ -6,6 +6,7 @@ import prismaClients from '../lib/prismaClient'
 import Maybe from 'true-myth/maybe'
 import Result from 'true-myth/result'
 import retry from 'async-retry'
+import { CountAndDecrement } from '../local-types'
 
 const STANDARD_RETRY_OPTIONS = {
   // minTimeout: 200, // PRODUCTION:UNCOMMENT
@@ -195,16 +196,11 @@ const deleteSessionActual = async (
 export const findCountById = async (
   db: D1Database,
   countId: string,
-  failureCount?: number
+  failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
   let res = Result.ok(Maybe.nothing()) as Result<Maybe<any>, Error>
   try {
     res = await retry(async (bail, attemptNumber) => {
-      // PRODUCTION:REMOVE-NEXT-LINE
-      if (failureCount != null && failureCount > 0) {
-        failureCount -= 1 // PRODUCTION:REMOVE
-      } // PRODUCTION:REMOVE
-
       return await findCountByIdActual(db, countId, failureCount)
     }, STANDARD_RETRY_OPTIONS)
   } catch (err) {
@@ -218,11 +214,12 @@ export const findCountById = async (
 const findCountByIdActual = async (
   db: D1Database,
   countId: string,
-  failureCount?: number
+  failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
     // PRODUCTION:REMOVE-NEXT-LINE
-    if (failureCount != null && failureCount > 0) {
+    if (failureCount != null && failureCount.count > 0) {
+      failureCount.decrement()
       throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
     } // PRODUCTION:REMOVE
 
@@ -246,19 +243,34 @@ const findCountByIdActual = async (
 export const incrementCountById = async (
   db: D1Database,
   countId: string,
-  failureCount?: number
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(
-    () => incrementCountByIdActual(db, countId, failureCount),
-    STANDARD_RETRY_OPTIONS
-  )
+  failureCount?: CountAndDecrement
+): Promise<Result<Maybe<any>, Error>> => {
+  let res = Result.ok(Maybe.nothing()) as Result<Maybe<any>, Error>
+  try {
+    res = await retry(
+      () => incrementCountByIdActual(db, countId, failureCount),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`incrementCountById final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const incrementCountByIdActual = async (
   db: D1Database,
   countId: string,
-  failureCount?: number
+  failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
+    // PRODUCTION:REMOVE-NEXT-LINE
+    if (failureCount != null && failureCount.count > 0) {
+      failureCount.decrement()
+      throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
+    } // PRODUCTION:REMOVE
+
     const prisma = await prismaClients.fetch(db)
     // @ts-ignore
     const updated = await prisma.count.update({
@@ -268,6 +280,6 @@ const incrementCountByIdActual = async (
 
     return Result.ok(updated ? Maybe.just(updated) : Maybe.nothing())
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }

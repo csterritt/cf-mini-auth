@@ -11,7 +11,9 @@ describe('Count Page with DB Failures', () => {
     request,
   }) => {
     // Set DB failures to 3
-    await page.goto('http://localhost:3000/auth/set-db-failures/3')
+    await page.goto(
+      'http://localhost:3000/auth/set-db-failures/DB_FAIL_COUNT/3'
+    )
 
     // Visit the count page
     await page.goto('http://localhost:3000/count')
@@ -32,7 +34,9 @@ describe('Count Page with DB Failures', () => {
     request,
   }) => {
     // Set DB failures to 6
-    await page.goto('http://localhost:3000/auth/set-db-failures/7')
+    await page.goto(
+      'http://localhost:3000/auth/set-db-failures/DB_FAIL_COUNT/7'
+    )
 
     // Visit the count page
     await page.goto('http://localhost:3000/count')

@@ -70,6 +70,7 @@ export const COOKIES = {
   SESSION: 'SESSION',
   // DB failure count cookie for testing // PRODUCTION:REMOVE
   DB_FAIL_COUNT: 'DB_FAIL_COUNT', // PRODUCTION:REMOVE
+  DB_FAIL_INCR: 'DB_FAIL_INCR', // PRODUCTION:REMOVE
   // Standard cookie options
   STANDARD_COOKIE_OPTIONS: {
     path: '/',
