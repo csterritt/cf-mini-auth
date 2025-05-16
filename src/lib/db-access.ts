@@ -23,8 +23,20 @@ const STANDARD_RETRY_OPTIONS = {
 export const findUserByEmail = async (
   db: D1Database,
   email: string
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(() => findUserByEmailActual(db, email), STANDARD_RETRY_OPTIONS)
+): Promise<Result<Maybe<any>, Error>> => {
+  let res: Result<Maybe<any>, Error>
+  try {
+    res = await retry(
+      () => findUserByEmailActual(db, email),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`findUserByEmail final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const findUserByEmailActual = async (
   db: D1Database,
@@ -37,7 +49,7 @@ const findUserByEmailActual = async (
 
     return Result.ok(user ? Maybe.just(user) : Maybe.nothing())
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
@@ -50,8 +62,20 @@ const findUserByEmailActual = async (
 export const findUserById = async (
   db: D1Database,
   userId: string
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(() => findUserByIdActual(db, userId), STANDARD_RETRY_OPTIONS)
+): Promise<Result<Maybe<any>, Error>> => {
+  let res: Result<Maybe<any>, Error>
+  try {
+    res = await retry(
+      () => findUserByIdActual(db, userId),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`findUserById final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const findUserByIdActual = async (
   db: D1Database,
@@ -64,7 +88,7 @@ const findUserByIdActual = async (
 
     return Result.ok(user ? Maybe.just(user) : Maybe.nothing())
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
@@ -77,8 +101,20 @@ const findUserByIdActual = async (
 export const createSession = async (
   db: D1Database,
   sessionData: Record<string, unknown>
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(() => createSessionActual(db, sessionData), STANDARD_RETRY_OPTIONS)
+): Promise<Result<Maybe<any>, Error>> => {
+  let res: Result<Maybe<any>, Error>
+  try {
+    res = await retry(
+      () => createSessionActual(db, sessionData),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`createSession final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const createSessionActual = async (
   db: D1Database,
@@ -91,7 +127,7 @@ const createSessionActual = async (
 
     return Result.ok(session ? Maybe.just(session) : Maybe.nothing())
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
@@ -104,8 +140,20 @@ const createSessionActual = async (
 export const findSessionById = async (
   db: D1Database,
   sessionId: string
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(() => findSessionByIdActual(db, sessionId), STANDARD_RETRY_OPTIONS)
+): Promise<Result<Maybe<any>, Error>> => {
+  let res: Result<Maybe<any>, Error>
+  try {
+    res = await retry(
+      () => findSessionByIdActual(db, sessionId),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`findSessionById final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const findSessionByIdActual = async (
   db: D1Database,
@@ -120,7 +168,7 @@ const findSessionByIdActual = async (
 
     return Result.ok(session ? Maybe.just(session) : Maybe.nothing())
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
@@ -135,11 +183,20 @@ export const updateSessionById = async (
   db: D1Database,
   sessionId: string,
   updateData: Record<string, unknown>
-): Promise<Result<Maybe<any>, Error>> =>
-  retry(
-    () => updateSessionByIdActual(db, sessionId, updateData),
-    STANDARD_RETRY_OPTIONS
-  )
+): Promise<Result<Maybe<any>, Error>> => {
+  let res: Result<Maybe<any>, Error>
+  try {
+    res = await retry(
+      () => updateSessionByIdActual(db, sessionId, updateData),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`updateSessionById final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const updateSessionByIdActual = async (
   db: D1Database,
@@ -156,7 +213,7 @@ const updateSessionByIdActual = async (
 
     return Result.ok(session ? Maybe.just(session) : Maybe.nothing())
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
@@ -169,8 +226,20 @@ const updateSessionByIdActual = async (
 export const deleteSession = async (
   db: D1Database,
   sessionId: string
-): Promise<Result<boolean, Error>> =>
-  retry(() => deleteSessionActual(db, sessionId), STANDARD_RETRY_OPTIONS)
+): Promise<Result<boolean, Error>> => {
+  let res: Result<boolean, Error>
+  try {
+    res = await retry(
+      () => deleteSessionActual(db, sessionId),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`deleteSession final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
 
 const deleteSessionActual = async (
   db: D1Database,
@@ -182,7 +251,7 @@ const deleteSessionActual = async (
     await prisma.session.delete({ where: { id: sessionId } })
     return Result.ok(true)
   } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
@@ -198,7 +267,7 @@ export const findCountById = async (
   countId: string,
   failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
-  let res = Result.ok(Maybe.nothing()) as Result<Maybe<any>, Error>
+  let res: Result<Maybe<any>, Error>
   try {
     res = await retry(async (bail, attemptNumber) => {
       return await findCountByIdActual(db, countId, failureCount)
@@ -245,7 +314,7 @@ export const incrementCountById = async (
   countId: string,
   failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
-  let res = Result.ok(Maybe.nothing()) as Result<Maybe<any>, Error>
+  let res: Result<Maybe<any>, Error>
   try {
     res = await retry(
       () => incrementCountByIdActual(db, countId, failureCount),
