@@ -200,13 +200,12 @@ export const findCountById = async (
   let res = Result.ok(Maybe.nothing()) as Result<Maybe<any>, Error>
   try {
     res = await retry(async (bail, attemptNumber) => {
+      // PRODUCTION:REMOVE-NEXT-LINE
       if (failureCount != null && failureCount > 0) {
-        failureCount -= 1
-      }
+        failureCount -= 1 // PRODUCTION:REMOVE
+      } // PRODUCTION:REMOVE
 
-      const res = await findCountByIdActual(db, countId, failureCount)
-
-      return res
+      return await findCountByIdActual(db, countId, failureCount)
     }, STANDARD_RETRY_OPTIONS)
   } catch (err) {
     console.log(`findCountById final error:`, err)
@@ -222,9 +221,10 @@ const findCountByIdActual = async (
   failureCount?: number
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
+    // PRODUCTION:REMOVE-NEXT-LINE
     if (failureCount != null && failureCount > 0) {
-      throw new Error('Simulated DB failure')
-    }
+      throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
+    } // PRODUCTION:REMOVE
 
     const prisma = await prismaClients.fetch(db)
     // @ts-ignore
