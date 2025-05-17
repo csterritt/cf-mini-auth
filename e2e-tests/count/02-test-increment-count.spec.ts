@@ -18,11 +18,7 @@ test.describe('Increment count', () => {
 
     // It appears that hono/Cloudflare pages auto-follows redirects for the client,
     // so we can't verify the redirect status code
-    // expect(response.status()).toBe(303)
-
-    // Verify the redirect is to the sign-in page
-    const body = await response.text()
-    expect(body).toContain('sign-in-page-banner')
+    expect(response.status()).toBe(403)
   })
 
   test('increments the count when signed in and shows success message', async ({

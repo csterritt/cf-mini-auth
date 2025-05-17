@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
+import { csrf } from 'hono/csrf'
 import { secureHeaders } from 'hono/secure-headers'
 
 import { renderer } from './renderer'
@@ -24,7 +25,16 @@ import { handleSetDbFailures } from './routes/handleSetDbFailures' // PRODUCTION
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-app.use(secureHeaders())
+app.use(secureHeaders({ referrerPolicy: 'strict-origin-when-cross-origin' }))
+app.use(
+  '*',
+  csrf({
+    origin: (origin) => {
+      // return /https:\/\/cf-mini.example.com$/.test(origin)  // PRODUCTION:UNCOMMENT
+      return /http:\/\/localhost(:\d+)?$/.test(origin) // PRODUCTION:REMOVE
+    },
+  })
+)
 app.use(logger())
 app.use(renderer)
 app.use(provideSession)
