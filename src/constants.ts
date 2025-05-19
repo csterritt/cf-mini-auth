@@ -81,10 +81,17 @@ export const COOKIES = {
   },
 } as const
 
-// Validation patterns
+/**
+ * Validation patterns and messages
+ */
 export const VALIDATION = {
-  // Email validation regex
-  EMAIL_REGEX: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  // Patterns
+  EMAIL_PATTERN: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+
+  // Messages
+  REQUIRED: 'This field is required',
+  EMAIL_INVALID: 'Please enter a valid email address',
+  OTP_INVALID: 'Please enter a valid 6-digit code',
 } as const
 
 export const DURATIONS = {

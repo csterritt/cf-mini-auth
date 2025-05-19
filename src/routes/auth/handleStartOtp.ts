@@ -8,12 +8,13 @@ import { ulid } from 'ulid'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
-import { PATHS, VALIDATION, COOKIES, DURATIONS } from '../../constants'
+import { PATHS, COOKIES, DURATIONS, VALIDATION } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { findUserByEmail, createSession } from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
+import { StartOtpSchema, validateRequest } from '../../lib/validators'
 
 /**
  * Attach the start OTP POST route to the app.
@@ -23,29 +24,36 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.AUTH.START_OTP, async (c) => {
     // Example: validate email and handle OTP start logic
     const formData = await c.req.parseBody()
-    const email =
+
+    const enteredEmail =
       typeof formData.email === 'string' ? formData.email.trim() : ''
 
     // Store the entered email in a cookie
-    setCookie(c, COOKIES.EMAIL_ENTERED, email, COOKIES.STANDARD_COOKIE_OPTIONS)
+    setCookie(
+      c,
+      COOKIES.EMAIL_ENTERED,
+      enteredEmail,
+      COOKIES.STANDARD_COOKIE_OPTIONS
+    )
+    // Validate the request using Valibot schema
+    let [isValid, validatedData, errorMessage] = validateRequest(
+      formData,
+      StartOtpSchema
+    )
+
+    if (!isValid || !validatedData) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        errorMessage || VALIDATION.EMAIL_INVALID
+      )
+    }
+
+    const email = validatedData.email
 
     // Is there a session already?
     if (c.env.Session.isJust && c.env.Session.value.signedIn) {
       return redirectWithError(c, PATHS.PRIVATE, 'Already signed in')
-    }
-
-    // Simple email validation (should use shared regex in production)
-    if (
-      !email ||
-      !VALIDATION.EMAIL_REGEX.test(email) ||
-      email.length < 5 ||
-      email.length > 254
-    ) {
-      return redirectWithError(
-        c,
-        PATHS.AUTH.SIGN_IN,
-        'Please enter a valid email address'
-      )
     }
 
     // Check if user exists in the database
@@ -57,11 +65,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
-      return redirectWithError(
-        c,
-        PATHS.AUTH.SIGN_IN,
-        'Please enter a valid email address'
-      )
+      return redirectWithError(c, PATHS.AUTH.SIGN_IN, VALIDATION.EMAIL_INVALID)
     }
     const user = maybeUser.value
 

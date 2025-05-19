@@ -3,12 +3,12 @@
  * @module routes/auth/handleFinishOtp
  */
 import { Hono } from 'hono'
-import { getCookie, deleteCookie, setCookie } from 'hono/cookie'
+import { deleteCookie, setCookie } from 'hono/cookie'
 import { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
 import { PATHS, COOKIES, DURATIONS } from '../../constants'
-import { Bindings } from '../../local-types'
+import { Bindings, SignInSession } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import {
   deleteSession,
@@ -16,6 +16,7 @@ import {
   updateSessionById,
 } from '../../lib/db-access'
 import { getCurrentTime } from '../../lib/time-access'
+import { FinishOtpSchema, validateRequest } from '../../lib/validators'
 
 /**
  * Attach the finish OTP POST route to the app.
@@ -25,9 +26,23 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.AUTH.FINISH_OTP, async (c) => {
     // Validate and handle OTP finish logic
     const formData = await c.req.parseBody()
-    const email =
-      typeof formData.email === 'string' ? formData.email.trim() : ''
-    const otp = typeof formData.otp === 'string' ? formData.otp.trim() : ''
+
+    // Validate the request using Valibot schema
+    const [isValid, validatedData, errorMessage] = validateRequest(
+      formData,
+      FinishOtpSchema
+    )
+
+    if (!isValid || !validatedData) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.AWAIT_CODE,
+        errorMessage || 'Invalid input'
+      )
+    }
+
+    const email = validatedData.email
+    const otp = validatedData.otp
 
     // No session?
     if (c.env.Session.isNothing) {
@@ -38,16 +53,7 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
-    // Validate OTP (should be 6 digits)
-    if (!otp || !/^[0-9]{6}$/.test(otp)) {
-      return redirectWithError(
-        c,
-        PATHS.AUTH.AWAIT_CODE,
-        'Please enter a valid 6-digit code.'
-      )
-    }
-
-    const session = c.env.Session.value
+    const session: SignInSession = c.env.Session.value
 
     // see if this session has expired
     const now = getCurrentTime(c)

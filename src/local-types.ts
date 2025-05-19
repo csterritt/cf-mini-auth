@@ -1,10 +1,11 @@
 import { Maybe } from 'true-myth'
 
 export type SignInSession = {
-  id: number
+  id: string
   token: string
-  userId: number
+  userId: string
   signedIn: boolean
+  attemptCount: number
   createdAt: Date
   updatedAt: Date
   expiresAt: Date

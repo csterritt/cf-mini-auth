@@ -20,6 +20,7 @@ import {
 } from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
+import { ResendCodeSchema, validateRequest } from '../../lib/validators'
 
 /**
  * Attach the resend OTP POST route to the app.
@@ -29,8 +30,22 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.AUTH.RESEND_CODE, async (c) => {
     // Validate and handle OTP finish logic
     const formData = await c.req.parseBody()
-    const email =
-      typeof formData.email === 'string' ? formData.email.trim() : ''
+
+    // Validate the request using Valibot schema
+    const [isValid, validatedData, errorMessage] = validateRequest(
+      formData,
+      ResendCodeSchema
+    )
+
+    if (!isValid || !validatedData) {
+      return redirectWithError(
+        c,
+        PATHS.AUTH.AWAIT_CODE,
+        errorMessage || 'Invalid input'
+      )
+    }
+
+    const email = validatedData.email
 
     // Get SESSION cookie and check existence
     const sessionId: string = (getCookie(c, COOKIES.SESSION) ?? '').trim()

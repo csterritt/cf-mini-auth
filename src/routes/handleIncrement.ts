@@ -12,6 +12,7 @@ import { incrementCountById } from '../lib/db-access'
 import { redirectWithMessage, redirectWithError } from '../lib/redirects'
 import { signedInAccess } from '../middleware/signed-in-access'
 import { COOKIES } from '../constants'
+import { IncrementSchema, validateRequest } from '../lib/validators'
 
 /**
  * Attach the increment POST route to the app.
@@ -19,6 +20,18 @@ import { COOKIES } from '../constants'
  */
 export const handleIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
   app.post(PATHS.INCREMENT, signedInAccess, async (c) => {
+    // Validate the request using Valibot schema
+    const formData = await c.req.parseBody()
+    const [isValid, _validatedData, errorMessage] = validateRequest(formData, IncrementSchema)
+    
+    if (!isValid) {
+      return redirectWithError(
+        c,
+        PATHS.COUNT,
+        errorMessage || 'Invalid input'
+      )
+    }
+    
     // Check for DB_FAIL_INCR cookie using getCookie // PRODUCTION:REMOVE
     let dbFailCount: CountAndDecrement | undefined = undefined
     const failCountCookie = getCookie(c, COOKIES.DB_FAIL_INCR) // PRODUCTION:REMOVE
