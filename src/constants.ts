@@ -9,6 +9,7 @@
  */
 export const HTML_STATUS = {
   SEE_OTHER: 303 as const,
+  CONTENT_TOO_LARGE: 413 as const,
 } as const
 
 /**

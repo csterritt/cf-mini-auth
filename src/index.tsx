@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { csrf } from 'hono/csrf'
 import { secureHeaders } from 'hono/secure-headers'
+import { bodyLimit } from 'hono/body-limit'
 
 import { renderer } from './renderer'
 import { buildHome } from './routes/buildHome'
@@ -9,7 +10,7 @@ import { buildPrivate } from './routes/buildPrivate'
 import { buildCount } from './routes/buildCount'
 import { handleIncrement } from './routes/handleIncrement'
 import { build404 } from './routes/build404'
-import { PATHS } from './constants'
+import { HTML_STATUS, PATHS } from './constants'
 import { Bindings } from './local-types'
 import { buildSignIn } from './routes/auth/buildSignIn'
 import { handleStartOtp } from './routes/auth/handleStartOtp'
@@ -35,6 +36,16 @@ app.use(
     },
   })
 )
+app.use(
+  bodyLimit({
+    // maxSize: 4 * 1024, // 4kb // PRODUCTION:UNCOMMENT
+    maxSize: 1024, // 50kb // PRODUCTION:REMOVE
+    onError: (c) => {
+      return c.text('overflow :(', HTML_STATUS.CONTENT_TOO_LARGE)
+    },
+  })
+)
+
 app.use(logger())
 app.use(renderer)
 app.use(provideSession)
