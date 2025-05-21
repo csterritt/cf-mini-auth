@@ -41,6 +41,7 @@ app.use(
     // maxSize: 4 * 1024, // 4kb // PRODUCTION:UNCOMMENT
     maxSize: 1024, // 50kb // PRODUCTION:REMOVE
     onError: (c) => {
+      console.log('Body limit exceeded')
       return c.text('overflow :(', HTML_STATUS.CONTENT_TOO_LARGE)
     },
   })
