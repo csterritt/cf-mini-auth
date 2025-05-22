@@ -141,6 +141,7 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
+      console.log(`There is no user for the %s email`, email)
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, VALIDATION.EMAIL_INVALID)
     }
     const user = maybeUser.value
