@@ -52,6 +52,9 @@ export const PATHS = {
     // Set DB failures (for testing) // PRODUCTION:REMOVE
     SET_DB_FAILURES: '/auth/set-db-failures', // PRODUCTION:REMOVE
 
+    // Clean sessions for a user (for testing) // PRODUCTION:REMOVE
+    CLEAN_SESSIONS: '/auth/clean-sessions', // PRODUCTION:REMOVE
+
     // Sign out
     SIGN_OUT: '/auth/sign-out',
   },

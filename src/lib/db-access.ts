@@ -417,3 +417,56 @@ const countRecentNonSignedInSessionsByEmailActual = async (
     throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }
 }
+
+/**
+ * Delete all sessions for a specific user identified by email.
+ * @param db - D1Database instance
+ * @param email - User email
+ * @returns Result.ok(number) with count of deleted sessions, or Result.err with error
+ */
+export const deleteAllUserSessions = async (
+  db: D1Database,
+  email: string
+): Promise<Result<number, Error>> => {
+  let res: Result<number, Error>
+  try {
+    res = await retry(
+      () => deleteAllUserSessionsActual(db, email),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`deleteAllUserSessions final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
+
+const deleteAllUserSessionsActual = async (
+  db: D1Database,
+  email: string
+): Promise<Result<number, Error>> => {
+  try {
+    const prisma = await prismaClients.fetch(db)
+    
+    // First find the user by email
+    // @ts-ignore
+    const user = await prisma.user.findUnique({ where: { email } })
+    
+    if (!user) {
+      return Result.ok(0) // User not found, no sessions to delete
+    }
+    
+    // Delete all sessions for the user
+    // @ts-ignore
+    const result = await prisma.session.deleteMany({
+      where: {
+        userId: user.id
+      }
+    })
+
+    return Result.ok(result.count)
+  } catch (e) {
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
