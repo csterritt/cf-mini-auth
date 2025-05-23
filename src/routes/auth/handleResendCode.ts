@@ -4,7 +4,7 @@
  */
 import { Hono } from 'hono'
 import { deleteCookie, getCookie } from 'hono/cookie'
-import { isErr } from 'true-myth/result'
+import Result, { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
 import { DURATIONS, PATHS } from '../../constants'
@@ -21,6 +21,7 @@ import {
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
 import { ResendCodeSchema, validateRequest } from '../../lib/validators'
+// import { sendOtpToUserViaEmail } from '../../lib/send-email' // PRODUCTION:UNCOMMENT
 
 /**
  * Attach the resend OTP POST route to the app.
@@ -160,7 +161,21 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
 
     // TODO: Send the OTP code to the user
     c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
-    console.log(`======> The session token is ${sessionToken}`)
+    console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
+
+    const res = Result.ok(true) // PRODUCTION:REMOVE
+    // const res = await sendOtpToUserViaEmail(email, sessionToken) // PRODUCTION:UNCOMMENT
+    if (res.isErr) {
+      console.error('Failed to send email:', res.error)
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Failed to send email, please try again'
+      )
+    }
 
     // In a real implementation, you would trigger the resend logic here.
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, 'Code sent!')

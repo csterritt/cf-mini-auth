@@ -104,3 +104,13 @@ export const DURATIONS = {
 
 // OTP file path used by the backend // PRODUCTION:REMOVE
 export const OTP_FILE_PATH = '/tmp/otp.txt' // PRODUCTION:REMOVE
+
+/**
+ * Standard retry options for async operations
+ * @readonly
+ */
+export const STANDARD_RETRY_OPTIONS = {
+  // minTimeout: 200, // PRODUCTION:UNCOMMENT
+  minTimeout: 20, // PRODUCTION:REMOVE
+  retries: 5,
+} as const

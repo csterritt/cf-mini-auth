@@ -1,4 +1,8 @@
 import nodemailer from 'nodemailer'
+import retry from 'async-retry'
+import Result from 'true-myth/result'
+
+import { STANDARD_RETRY_OPTIONS } from '../constants'
 
 /**
  * Sends an email using SMTP with the provided details
@@ -60,14 +64,40 @@ export const sendEmail = async (
   }
 }
 
-export const sendOtpToUserViaEmail = async (email: string, otp: string) => {
-  await sendEmail(
-    'noreply@cls.cloud',
-    email,
-    'Your Mini-Auth Verification Code',
-    `<h1>Verification Code</h1>
+export const sendOtpToUserViaEmail = async (
+  email: string,
+  otp: string
+): Promise<Result<boolean, Error>> => {
+  let res: Result<boolean, Error>
+  try {
+    res = await retry(
+      () => sendOtpToUserViaEmailActual(email, otp),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`sendOtpToUserViaEmail final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
+
+const sendOtpToUserViaEmailActual = async (
+  email: string,
+  otp: string
+): Promise<Result<boolean, Error>> => {
+  try {
+    await sendEmail(
+      'noreply@cls.cloud',
+      email,
+      'Your Mini-Auth Verification Code',
+      `<h1>Verification Code</h1>
          <p>Your verification code is: <strong>${otp}</strong></p>
          <p>This code will expire in 15 minutes.</p>`
-  )
-  console.log(`Email with OTP code sent to ${email}`)
+    )
+    console.log(`Email with OTP code sent to ${email}`)
+    return Result.ok(true)
+  } catch (e) {
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
 }

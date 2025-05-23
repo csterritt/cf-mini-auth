@@ -3,19 +3,23 @@
  * @module routes/auth/handleStartOtp
  */
 import { Hono } from 'hono'
-import { setCookie } from 'hono/cookie'
+import { deleteCookie, setCookie } from 'hono/cookie'
 import { ulid } from 'ulid'
-import { isErr } from 'true-myth/result'
+import Result, { isErr } from 'true-myth/result'
 import { isNothing } from 'true-myth/maybe'
 
 import { PATHS, COOKIES, DURATIONS, VALIDATION } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
-import { findUserByEmail, createSession } from '../../lib/db-access'
+import {
+  findUserByEmail,
+  createSession,
+  deleteSession,
+} from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
 import { StartOtpSchema, validateRequest } from '../../lib/validators'
-// import { sendOtpToUserViaEmail } from '../../lib/send-email'  // PRODUCTION:UNCOMMENT
+// import { sendOtpToUserViaEmail } from '../../lib/send-email' // PRODUCTION:UNCOMMENT
 
 // Simple in-memory rate limiting
 // Maps email to an array of timestamps when OTP requests were made
@@ -178,14 +182,20 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
 
     // Send the OTP code to the user via email
-    try {
-      console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
+    console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
 
-      // sendOtpToUserViaEmail(email, sessionToken)  // PRODUCTION:UNCOMMENT
-    } catch (error) {
-      console.error('Failed to send email:', error)
-      // Continue with the flow even if email sending fails
-      // In production, you might want to handle this differently
+    const res = Result.ok(true) // PRODUCTION:REMOVE
+    // const res = await sendOtpToUserViaEmail(email, sessionToken) // PRODUCTION:UNCOMMENT
+    if (res.isErr) {
+      console.error('Failed to send email:', res.error)
+      await deleteSession(c.env.DB, sessionId)
+      deleteCookie(c, COOKIES.SESSION, { path: '/' })
+
+      return redirectWithError(
+        c,
+        PATHS.AUTH.SIGN_IN,
+        'Failed to send email, please try again'
+      )
     }
 
     // For now, just redirect to await code page

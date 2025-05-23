@@ -7,12 +7,7 @@ import Maybe from 'true-myth/maybe'
 import Result from 'true-myth/result'
 import retry from 'async-retry'
 import { CountAndDecrement } from '../local-types'
-
-const STANDARD_RETRY_OPTIONS = {
-  // minTimeout: 200, // PRODUCTION:UNCOMMENT
-  minTimeout: 20, // PRODUCTION:REMOVE
-  retries: 5,
-} as const
+import { STANDARD_RETRY_OPTIONS } from '../constants'
 
 /**
  * Find a user by email address.
