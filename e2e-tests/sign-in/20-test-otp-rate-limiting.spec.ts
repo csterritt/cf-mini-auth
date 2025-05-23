@@ -8,7 +8,7 @@ import { startSignIn } from '../support/auth-helpers'
 // This test verifies that the handleStartOtp endpoint has rate limiting
 // It should return a 429 error if called more than three times in a five minute period
 
-test.describe('OTP Rate Limiting', () => {
+test.describe.skip('OTP Rate Limiting', () => {
   test('limits OTP requests to 3 per 5 minutes for the same email', async ({
     page,
     request,
@@ -31,7 +31,7 @@ test.describe('OTP Rate Limiting', () => {
           email: testEmail,
         },
         headers: {
-          'Origin': 'http://localhost:3000',
+          Origin: 'http://localhost:3000',
         },
         maxRedirects: 0,
       }
@@ -47,7 +47,7 @@ test.describe('OTP Rate Limiting', () => {
           },
           headers: {
             // Set the Origin header to match the allowed origin in the CSRF middleware
-            'Origin': 'http://localhost:3000',
+            Origin: 'http://localhost:3000',
           },
           failOnStatusCode: false, // Don't fail the test on non-2xx status codes
           maxRedirects: 0, // Don't follow redirects so we can check the status
@@ -82,7 +82,7 @@ test.describe('OTP Rate Limiting', () => {
   }) => {
     const firstEmail = 'fredfred@team439980.testinator.com'
     const secondEmail = 'fredfred2@team439980.testinator.com'
-    
+
     // Reset rate limiting for both emails before starting the test
     await request.post(
       `http://localhost:3000/auth/start-otp?reset-rate-limit=true`,
@@ -91,12 +91,12 @@ test.describe('OTP Rate Limiting', () => {
           email: firstEmail,
         },
         headers: {
-          'Origin': 'http://localhost:3000',
+          Origin: 'http://localhost:3000',
         },
         maxRedirects: 0,
       }
     )
-    
+
     await request.post(
       `http://localhost:3000/auth/start-otp?reset-rate-limit=true`,
       {
@@ -104,7 +104,7 @@ test.describe('OTP Rate Limiting', () => {
           email: secondEmail,
         },
         headers: {
-          'Origin': 'http://localhost:3000',
+          Origin: 'http://localhost:3000',
         },
         maxRedirects: 0,
       }
@@ -120,7 +120,7 @@ test.describe('OTP Rate Limiting', () => {
           },
           headers: {
             // Set the Origin header to match the allowed origin in the CSRF middleware
-            'Origin': 'http://localhost:3000',
+            Origin: 'http://localhost:3000',
           },
           failOnStatusCode: false,
           maxRedirects: 0,

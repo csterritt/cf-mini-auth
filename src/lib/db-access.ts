@@ -2,12 +2,15 @@
  * Database access utility functions for user and session models.
  * @module support/db-access
  */
-import prismaClients from '../lib/prismaClient'
+import { Context } from 'hono'
 import Maybe from 'true-myth/maybe'
 import Result from 'true-myth/result'
 import retry from 'async-retry'
+
+import prismaClients from '../lib/prismaClient'
 import { CountAndDecrement } from '../local-types'
 import { STANDARD_RETRY_OPTIONS } from '../constants'
+import { getCurrentTime } from './time-access'
 
 /**
  * Find a user by email address.
@@ -343,6 +346,73 @@ const incrementCountByIdActual = async (
     })
 
     return Result.ok(updated ? Maybe.just(updated) : Maybe.nothing())
+  } catch (e) {
+    throw Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
+
+/**
+ * Count non-signed-in sessions for a given email within the rate limit window.
+ * @param c - Hono context
+ * @param db - D1Database instance
+ * @param email - User email
+ * @param windowMs - Time window in milliseconds
+ * @returns Result with the count of recent non-signed-in sessions, or Result.err with error
+ */
+export const countRecentNonSignedInSessionsByEmail = async (
+  c: Context,
+  db: D1Database,
+  email: string,
+  windowMs: number
+): Promise<Result<number, Error>> => {
+  let res: Result<number, Error>
+  try {
+    res = await retry(
+      () => countRecentNonSignedInSessionsByEmailActual(c, db, email, windowMs),
+      STANDARD_RETRY_OPTIONS
+    )
+  } catch (err) {
+    console.log(`countRecentNonSignedInSessionsByEmail final error:`, err)
+    res = Result.err(err instanceof Error ? err : new Error(String(err)))
+  }
+
+  return res
+}
+
+const countRecentNonSignedInSessionsByEmailActual = async (
+  c: Context,
+  db: D1Database,
+  email: string,
+  windowMs: number
+): Promise<Result<number, Error>> => {
+  try {
+    const prisma = await prismaClients.fetch(db)
+    const windowStart = getCurrentTime(
+      c,
+      getCurrentTime(c).getTime() - windowMs
+    )
+
+    // First find the user by email
+    // @ts-ignore
+    const user = await prisma.user.findUnique({ where: { email } })
+
+    if (!user) {
+      throw Result.err(`User not found`) // User not found, return count of 0
+    }
+
+    // Count sessions for this user that are not signed in and created within the window
+    // @ts-ignore
+    const count = await prisma.session.count({
+      where: {
+        userId: user.id,
+        signedIn: false,
+        createdAt: {
+          gte: windowStart,
+        },
+      },
+    })
+
+    return Result.ok(count)
   } catch (e) {
     throw Result.err(e instanceof Error ? e : new Error(String(e)))
   }

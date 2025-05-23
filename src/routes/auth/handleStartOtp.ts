@@ -2,7 +2,7 @@
  * Route handler for the start OTP path (POST).
  * @module routes/auth/handleStartOtp
  */
-import { Hono } from 'hono'
+import { Context, Hono } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 import { ulid } from 'ulid'
 import Result, { isErr } from 'true-myth/result'
@@ -15,56 +15,41 @@ import {
   findUserByEmail,
   createSession,
   deleteSession,
+  countRecentNonSignedInSessionsByEmail,
 } from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
 import { StartOtpSchema, validateRequest } from '../../lib/validators'
 // import { sendOtpToUserViaEmail } from '../../lib/send-email' // PRODUCTION:UNCOMMENT
 
-// Simple in-memory rate limiting
-// Maps email to an array of timestamps when OTP requests were made
-const otpRequestsMap = new Map<string, number[]>()
-const MAX_REQUESTS_PER_WINDOW = 3 // Maximum 3 requests
-const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000 // 5 minutes in milliseconds
+// Maximum number of non-signed-in sessions allowed in the rate limit window
+const MAX_REQUESTS_PER_WINDOW = 3
 
 /**
  * Check if the email has exceeded the rate limit
+ * @param c - Hono context
+ * @param db - D1Database instance
  * @param email - The email to check
- * @param now - Current timestamp
- * @returns true if rate limited, false otherwise
+ * @returns Promise<boolean> - true if rate limited, false otherwise
  */
-function isRateLimited(email: string, now: number): boolean {
-  const requests = otpRequestsMap.get(email) || []
-
-  // Filter out requests older than the rate limit window
-  const recentRequests = requests.filter(
-    (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS
+async function isRateLimited(
+  c: Context,
+  db: D1Database,
+  email: string
+): Promise<boolean> {
+  const countResult = await countRecentNonSignedInSessionsByEmail(
+    c,
+    db,
+    email,
+    DURATIONS.RATE_LIMIT_WINDOW_MS
   )
 
-  // Update the map with only recent requests
-  otpRequestsMap.set(email, recentRequests)
+  if (isErr(countResult)) {
+    console.error(`Error checking rate limit: ${countResult.error}`)
+    return false // Default to not rate-limited on error
+  }
 
-  // Check if the number of recent requests exceeds the limit
-  return recentRequests.length >= MAX_REQUESTS_PER_WINDOW
-}
-
-/**
- * Record a new OTP request for the email
- * @param email - The email to record the request for
- * @param now - Current timestamp
- */
-function recordOtpRequest(email: string, now: number): void {
-  const requests = otpRequestsMap.get(email) || []
-  requests.push(now)
-  otpRequestsMap.set(email, requests)
-}
-
-/**
- * Reset rate limiting for a specific email
- * @param email - The email to reset rate limiting for
- */
-function resetRateLimiting(email: string): void {
-  otpRequestsMap.delete(email)
+  return countResult.value > MAX_REQUESTS_PER_WINDOW
 }
 
 /**
@@ -103,34 +88,20 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     const email = validatedData.email
     const now = getCurrentTime(c).getTime()
 
-    // Check if we should reset rate limiting for this email // PRODUCTION:REMOVE
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (c.req.query('reset-rate-limit') === 'true') {
-      resetRateLimiting(email) // PRODUCTION:REMOVE
-    } // PRODUCTION:REMOVE
-
-    // Only apply rate limiting if the rate-limit-test query parameter is present and set to true // PRODUCTION:REMOVE
-    const rateLimitTest = c.req.query('rate-limit-test') === 'true' // PRODUCTION:REMOVE
-
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (rateLimitTest) {
-      // Check rate limiting
-      if (isRateLimited(email, now)) {
-        // Set retry-after header (in seconds)
-        c.header(
-          'Retry-After',
-          Math.ceil(RATE_LIMIT_WINDOW_MS / 1000).toString()
-        )
-        // Return 429 Too Many Requests
-        return c.text(
-          'Too many OTP requests. Please try again later due to rate limit.',
-          429
-        )
-      }
-
-      // Record this OTP request
-      recordOtpRequest(email, now)
-    } // PRODUCTION:REMOVE
+    // Check rate limiting
+    const rateLimited = await isRateLimited(c, c.env.DB, email)
+    if (rateLimited) {
+      // Set retry-after header (in seconds)
+      c.header(
+        'Retry-After',
+        Math.ceil(DURATIONS.RATE_LIMIT_WINDOW_MS / 1000).toString()
+      )
+      // Return 429 Too Many Requests
+      return c.text(
+        'Too many OTP requests. Please try again later due to rate limit.',
+        429
+      )
+    }
 
     // Is there a session already?
     if (c.env.Session.isJust && c.env.Session.value.signedIn) {
