@@ -48,9 +48,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const email = validatedData.email
 
-    // Get SESSION cookie and check existence
-    const sessionId: string = (getCookie(c, COOKIES.SESSION) ?? '').trim()
-    if (sessionId == '') {
+    if (c.env.Session.isNothing) {
       return redirectWithError(
         c,
         PATHS.AUTH.SIGN_IN,
@@ -58,32 +56,12 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
 
-    // Read session from database
-    const sessionResult = await findSessionById(c.env.DB, sessionId)
-    if (isErr(sessionResult)) {
-      // TODO: clean out session and cookies
-      console.log(
-        `======> Database error getting session: ${sessionResult.error}`
-      )
-      return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
-    }
-
-    const maybeSession = sessionResult.value
-    if (isNothing(maybeSession)) {
-      deleteCookie(c, COOKIES.SESSION, { path: '/' })
-
-      return redirectWithError(
-        c,
-        PATHS.AUTH.SIGN_IN,
-        'Sign in flow problem, please sign in again'
-      )
-    }
-    const session = maybeSession.value
+    const session = c.env.Session.value
 
     // see if this session has expired
     const now = getCurrentTime(c)
     if (session.expiresAt < now) {
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
       return redirectWithError(
@@ -114,7 +92,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const maybeUser = userResult.value
     if (isNothing(maybeUser)) {
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
       deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
 
@@ -127,7 +105,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
 
     const user = maybeUser.value
     if (user.email !== email) {
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
       deleteCookie(c, COOKIES.EMAIL_ENTERED, { path: '/' })
 
@@ -144,7 +122,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
       now.getTime() + DURATIONS.FIFTEEN_MINUTES_IN_MILLISECONDS
     )
     const sessionToken: string = await generateToken()
-    const updateResult = await updateSessionById(c.env.DB, sessionId, {
+    const updateResult = await updateSessionById(c.env.DB, session.id, {
       token: sessionToken,
       expiresAt,
       updatedAt: getCurrentTime(c),
@@ -167,7 +145,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     // const res = await sendOtpToUserViaEmail(email, sessionToken) // PRODUCTION:UNCOMMENT
     if (res.isErr) {
       console.error('Failed to send email:', res.error)
-      await deleteSession(c.env.DB, sessionId)
+      await deleteSession(c.env.DB, session.id)
       deleteCookie(c, COOKIES.SESSION, { path: '/' })
 
       return redirectWithError(
