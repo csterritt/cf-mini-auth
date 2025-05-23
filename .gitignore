@@ -34,3 +34,4 @@ lerna-debug.log*
 test-results/
 tmp/
 .idea
+.env.sh

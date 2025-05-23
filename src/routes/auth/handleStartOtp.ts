@@ -15,6 +15,7 @@ import { findUserByEmail, createSession } from '../../lib/db-access'
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
 import { StartOtpSchema, validateRequest } from '../../lib/validators'
+// import { sendOtpToUserViaEmail } from '../../lib/send-email'  // PRODUCTION:UNCOMMENT
 
 // Simple in-memory rate limiting
 // Maps email to an array of timestamps when OTP requests were made
@@ -176,8 +177,16 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
     c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
 
-    // TODO: Send the OTP code to the user
-    console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
+    // Send the OTP code to the user via email
+    try {
+      console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
+
+      // sendOtpToUserViaEmail(email, sessionToken)  // PRODUCTION:UNCOMMENT
+    } catch (error) {
+      console.error('Failed to send email:', error)
+      // Continue with the flow even if email sending fails
+      // In production, you might want to handle this differently
+    }
 
     // For now, just redirect to await code page
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_CODE, '')
