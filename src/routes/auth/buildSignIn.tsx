@@ -26,6 +26,7 @@ const renderSignIn = (c: Context, emailEntered: string) => {
         method='post'
         action={PATHS.AUTH.START_OTP}
         className='flex flex-col gap-4'
+        aria-label='Sign in form'
       >
         <label htmlFor='email'>Email</label>
         <input
@@ -46,7 +47,11 @@ const renderSignIn = (c: Context, emailEntered: string) => {
       </form>
 
       <p>
-        <form method='post' action={PATHS.AUTH.CANCEL_OTP}>
+        <form
+          method='post'
+          action={PATHS.AUTH.CANCEL_OTP}
+          aria-label='Cancel sign in'
+        >
           <button type='submit' data-testid='cancel-sign-in-link'>
             Cancel sign in
           </button>

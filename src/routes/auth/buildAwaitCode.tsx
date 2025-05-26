@@ -23,10 +23,11 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
         method='post'
         action={PATHS.AUTH.FINISH_OTP}
         className='flex flex-col gap-4'
+        aria-label='Enter code form'
       >
         <input type='hidden' name='email' value={emailEntered} />
         <label htmlFor='otp' data-testid='please-enter-code-message'>
-          Please enter the code sent to {emailEntered}
+          Please enter the one-time code sent to {emailEntered}
         </label>
         <input
           id='otp'
@@ -40,7 +41,7 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
           required
           className='input input-bordered'
           autoFocus
-          aria-label='One-time code'
+          aria-label={`Please enter the one-time code sent to ${emailEntered}`}
         />
         <button type='submit' className='btn btn-primary' data-testid='submit'>
           Verify Code
@@ -48,7 +49,12 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
       </form>
 
       {/* Resend code form */}
-      <form method='post' action={PATHS.AUTH.RESEND_CODE} className='mt-2'>
+      <form
+        method='post'
+        action={PATHS.AUTH.RESEND_CODE}
+        className='mt-2'
+        aria-label='Resend code form'
+      >
         <input type='hidden' name='email' value={emailEntered} />
         <button
           type='submit'
@@ -60,7 +66,11 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
       </form>
 
       <p>
-        <form method='post' action={PATHS.AUTH.CANCEL_OTP}>
+        <form
+          method='post'
+          action={PATHS.AUTH.CANCEL_OTP}
+          aria-label='Cancel sign in form'
+        >
           <button type='submit' data-testid='cancel-sign-in-link'>
             Cancel sign in
           </button>
