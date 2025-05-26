@@ -1,7 +1,7 @@
 import { test } from '@playwright/test'
 
-import { clickLink } from './support/finders'
-import { verifyOn404Page, verifyOnStartupPage } from './support/page-verifiers'
+import { clickLink } from '../support/finders'
+import { verifyOn404Page, verifyOnStartupPage } from '../support/page-verifiers'
 
 test('a bad path redirects to a proper 404 page', async ({ page }) => {
   // Navigate to nonexistent page

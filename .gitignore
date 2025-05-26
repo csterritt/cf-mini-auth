@@ -35,3 +35,4 @@ test-results/
 tmp/
 .idea
 .env.sh
+test_enhancements.md

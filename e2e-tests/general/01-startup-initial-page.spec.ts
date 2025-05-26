@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-import { elementExists } from './support/finders'
-import { verifyOnStartupPage } from './support/page-verifiers'
+import { elementExists } from '../support/finders'
+import { verifyOnStartupPage } from '../support/page-verifiers'
 
 test('initial startup page has proper banners', async ({ page }) => {
   // Navigate to startup page
