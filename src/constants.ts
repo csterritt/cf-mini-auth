@@ -62,7 +62,7 @@ export const PATHS = {
 
 // Cookie names
 export const COOKIES = {
-  // Oridnary message cookie
+  // Ordinary message cookie
   MESSAGE_FOUND: 'MESSAGE_FOUND',
   // Error message cookie
   ERROR_FOUND: 'ERROR_FOUND',
