@@ -66,12 +66,13 @@ export const sendEmail = async (
 
 export const sendOtpToUserViaEmail = async (
   email: string,
-  otp: string
+  otp: string,
+  emailAgent: typeof sendEmail = sendEmail
 ): Promise<Result<boolean, Error>> => {
   let res: Result<boolean, Error>
   try {
     res = await retry(
-      () => sendOtpToUserViaEmailActual(email, otp),
+      () => sendOtpToUserViaEmailActual(email, otp, emailAgent),
       STANDARD_RETRY_OPTIONS
     )
   } catch (err) {
@@ -84,10 +85,11 @@ export const sendOtpToUserViaEmail = async (
 
 const sendOtpToUserViaEmailActual = async (
   email: string,
-  otp: string
+  otp: string,
+  emailAgent: typeof sendEmail
 ): Promise<Result<boolean, Error>> => {
   try {
-    await sendEmail(
+    await emailAgent(
       'noreply@cls.cloud',
       email,
       'Your Mini-Auth Verification Code',
