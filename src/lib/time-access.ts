@@ -13,6 +13,8 @@ export const getCurrentTime = (c: any, ...args: any[]): Date => {
 
   // // @ts-ignore // PRODUCTION:UNCOMMENT
   // return new Date(...args) // PRODUCTION:UNCOMMENT
+  // } // PRODUCTION:UNCOMMENT
+  // PRODUCTION:STOP
 
   const ds = getCookie(c, 'delta')
   const delta = parseInt(ds == null || ds.toString().trim() === '' ? '0' : ds)

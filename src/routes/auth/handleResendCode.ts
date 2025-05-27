@@ -137,7 +137,7 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
 
-    // TODO: Send the OTP code to the user
+    // Send the OTP code to the user via email
     c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
     console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
 

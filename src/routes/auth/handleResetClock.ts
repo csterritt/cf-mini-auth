@@ -3,6 +3,7 @@
  * @module routes/auth/handleResetClock
  */
 import { Hono } from 'hono'
+
 import { PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithMessage } from '../../lib/redirects'
@@ -15,6 +16,10 @@ import { clearCurrentDelta } from '../../lib/time-access'
 export const handleResetClock = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.AUTH.RESET_CLOCK, async (c) => {
     // return redirectWithMessage(c, PATHS.HOME, '') // PRODUCTION:UNCOMMENT
+    // }) // PRODUCTION:UNCOMMENT
+    // } // PRODUCTION:UNCOMMENT
+    // PRODUCTION:STOP
+
     clearCurrentDelta(c)
     // For test: pretend to reset the server clock (no-op in prod)
     // In a real implementation, you would reset the test clock here

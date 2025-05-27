@@ -286,7 +286,7 @@ const findCountByIdActual = async (
   try {
     // PRODUCTION:REMOVE-NEXT-LINE
     if (failureCount != null && failureCount.count > 0) {
-      failureCount.decrement()
+      failureCount.decrement() // PRODUCTION:REMOVE
       throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
     } // PRODUCTION:REMOVE
 
@@ -334,7 +334,7 @@ const incrementCountByIdActual = async (
   try {
     // PRODUCTION:REMOVE-NEXT-LINE
     if (failureCount != null && failureCount.count > 0) {
-      failureCount.decrement()
+      failureCount.decrement() // PRODUCTION:REMOVE
       throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
     } // PRODUCTION:REMOVE
 
@@ -448,21 +448,21 @@ const deleteAllUserSessionsActual = async (
 ): Promise<Result<number, Error>> => {
   try {
     const prisma = await prismaClients.fetch(db)
-    
+
     // First find the user by email
     // @ts-ignore
     const user = await prisma.user.findUnique({ where: { email } })
-    
+
     if (!user) {
       return Result.ok(0) // User not found, no sessions to delete
     }
-    
+
     // Delete all sessions for the user
     // @ts-ignore
     const result = await prisma.session.deleteMany({
       where: {
-        userId: user.id
-      }
+        userId: user.id,
+      },
     })
 
     return Result.ok(result.count)

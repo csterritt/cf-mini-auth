@@ -3,6 +3,7 @@
  * @module routes/auth/handleCleanSessions
  */
 import { Hono } from 'hono'
+
 import { PATHS } from '../../constants'
 import { Bindings } from '../../local-types'
 import { redirectWithMessage, redirectWithError } from '../../lib/redirects'
@@ -13,23 +14,37 @@ import { isErr } from 'true-myth/result'
  * Attach the clean sessions GET route to the app.
  * @param app - Hono app instance
  */
-export const handleCleanSessions = (app: Hono<{ Bindings: Bindings }>): void => {
+export const handleCleanSessions = (
+  app: Hono<{ Bindings: Bindings }>
+): void => {
   app.get(`${PATHS.AUTH.CLEAN_SESSIONS}/:email`, async (c) => {
     // return redirectWithMessage(c, PATHS.HOME, '') // PRODUCTION:UNCOMMENT
+    // }) // PRODUCTION:UNCOMMENT
+    // } // PRODUCTION:UNCOMMENT
+    // PRODUCTION:STOP
+
     const email = c.req.param('email')
-    
+
     if (!email) {
       return redirectWithError(c, PATHS.HOME, 'Email is required')
     }
-    
+
     const result = await deleteAllUserSessions(c.env.DB, email)
-    
+
     if (isErr(result)) {
       console.error(`Error cleaning sessions: ${result.error}`)
-      return redirectWithError(c, PATHS.HOME, `Error cleaning sessions: ${result.error}`)
+      return redirectWithError(
+        c,
+        PATHS.HOME,
+        `Error cleaning sessions: ${result.error}`
+      )
     }
-    
+
     const count = result.value
-    return redirectWithMessage(c, PATHS.HOME, `Successfully deleted ${count} sessions for ${email}`)
+    return redirectWithMessage(
+      c,
+      PATHS.HOME,
+      `Successfully deleted ${count} sessions for ${email}`
+    )
   })
 }
