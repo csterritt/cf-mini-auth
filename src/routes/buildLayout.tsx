@@ -5,8 +5,8 @@
 import { Context } from 'hono'
 import { getCookie, deleteCookie } from 'hono/cookie'
 
-import { COOKIES } from '../constants'
-import { PATHS } from '../constants'
+import { COOKIES, PATHS } from '../constants'
+import { version } from '../version'
 
 /**
  * Wraps children in a standard layout.
@@ -63,6 +63,10 @@ export function useLayout(c: Context, children: any) {
       )}
 
       {children}
+
+      <footer>
+        <div>Copyright &copy; 2025 V{version}</div>
+      </footer>
     </main>
   )
 }
