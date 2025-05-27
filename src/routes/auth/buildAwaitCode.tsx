@@ -41,6 +41,7 @@ const renderAwaitCode = (c: Context, emailEntered: string) => {
           required
           className='input input-bordered'
           autoFocus
+          data-testid='otp-input'
           aria-label={`Please enter the one-time code sent to ${emailEntered}`}
         />
         <button type='submit' className='btn btn-primary' data-testid='submit'>
