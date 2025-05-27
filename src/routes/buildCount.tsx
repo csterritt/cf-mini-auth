@@ -43,13 +43,7 @@ const renderCount = (c: Context, count: number, error?: string) => {
  */
 export const buildCount = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.COUNT, async (c) => {
-    // Check for DB_FAIL_COUNT cookie using getCookie // PRODUCTION:REMOVE
     let dbFailCount: CountAndDecrement | undefined = undefined
-    const failCountCookie = getCookie(c, COOKIES.DB_FAIL_COUNT) // PRODUCTION:REMOVE
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (failCountCookie && !isNaN(Number(failCountCookie))) {
-      dbFailCount = new CountAndDecrement(Number(failCountCookie)) // PRODUCTION:REMOVE
-    } // PRODUCTION:REMOVE
 
     const countResult = await findCountById(c.env.DB, 'foo', dbFailCount)
     if (isErr(countResult)) {

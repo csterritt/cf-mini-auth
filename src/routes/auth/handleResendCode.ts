@@ -21,7 +21,7 @@ import {
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
 import { ResendCodeSchema, validateRequest } from '../../lib/validators'
-// import { sendOtpToUserViaEmail } from '../../lib/send-email' // PRODUCTION:UNCOMMENT
+ import { sendOtpToUserViaEmail } from '../../lib/send-email' 
 
 /**
  * Attach the resend OTP POST route to the app.
@@ -138,11 +138,8 @@ export const handleResendCode = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     // Send the OTP code to the user via email
-    c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
-    console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
 
-    const res = Result.ok(true) // PRODUCTION:REMOVE
-    // const res = await sendOtpToUserViaEmail(email, sessionToken) // PRODUCTION:UNCOMMENT
+     const res = await sendOtpToUserViaEmail(email, sessionToken) 
     if (res.isErr) {
       console.error('Failed to send email:', res.error)
       await deleteSession(c.env.DB, session.id)

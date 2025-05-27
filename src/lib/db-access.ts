@@ -284,11 +284,6 @@ const findCountByIdActual = async (
   failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (failureCount != null && failureCount.count > 0) {
-      failureCount.decrement() // PRODUCTION:REMOVE
-      throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
-    } // PRODUCTION:REMOVE
 
     const prisma = await prismaClients.fetch(db)
     // @ts-ignore
@@ -332,11 +327,6 @@ const incrementCountByIdActual = async (
   failureCount?: CountAndDecrement
 ): Promise<Result<Maybe<any>, Error>> => {
   try {
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (failureCount != null && failureCount.count > 0) {
-      failureCount.decrement() // PRODUCTION:REMOVE
-      throw new Error('Simulated DB failure') // PRODUCTION:REMOVE
-    } // PRODUCTION:REMOVE
 
     const prisma = await prismaClients.fetch(db)
     // @ts-ignore

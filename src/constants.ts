@@ -45,15 +45,8 @@ export const PATHS = {
     // Resend OTP code
     RESEND_CODE: '/auth/resend-code',
 
-    // Set and reset clock (for testing) // PRODUCTION:REMOVE
-    SET_CLOCK: '/auth/set-clock', // PRODUCTION:REMOVE
-    RESET_CLOCK: '/auth/reset-clock', // PRODUCTION:REMOVE
 
-    // Set DB failures (for testing) // PRODUCTION:REMOVE
-    SET_DB_FAILURES: '/auth/set-db-failures', // PRODUCTION:REMOVE
 
-    // Clean sessions for a user (for testing) // PRODUCTION:REMOVE
-    CLEAN_SESSIONS: '/auth/clean-sessions', // PRODUCTION:REMOVE
 
     // Sign out
     SIGN_OUT: '/auth/sign-out',
@@ -72,16 +65,13 @@ export const COOKIES = {
   OTP_SETUP: 'OTP_SETUP',
   // Session cookie
   SESSION: 'SESSION',
-  // DB failure count cookie for testing // PRODUCTION:REMOVE
-  DB_FAIL_COUNT: 'DB_FAIL_COUNT', // PRODUCTION:REMOVE
-  DB_FAIL_INCR: 'DB_FAIL_INCR', // PRODUCTION:REMOVE
   // Standard cookie options
   STANDARD_COOKIE_OPTIONS: {
     path: '/',
     httpOnly: true,
     sameSite: 'Strict',
-    // secure: true, // PRODUCTION:UNCOMMENT
-    // domain: 'mini-auth.cls.cloud', // PRODUCTION:UNCOMMENT
+     secure: true, 
+     domain: 'mini-auth.cls.cloud', 
   },
 } as const
 
@@ -99,22 +89,18 @@ export const VALIDATION = {
 } as const
 
 export const DURATIONS = {
-  // THIRTY_SECONDS_IN_MILLISECONDS: 30 * 1000, // PRODUCTION:UNCOMMENT
-  THIRTY_SECONDS_IN_MILLISECONDS: 2 * 1000, // PRODUCTION:REMOVE
+   THIRTY_SECONDS_IN_MILLISECONDS: 30 * 1000, 
   FIFTEEN_MINUTES_IN_MILLISECONDS: 15 * 60 * 1000,
   SIX_MONTHS_IN_MILLISECONDS: 6 * 30 * 24 * 60 * 60 * 1000,
   RATE_LIMIT_WINDOW_MS: 5 * 60 * 1000, // 5 minutes in milliseconds
 }
 
-// OTP file path used by the backend // PRODUCTION:REMOVE
-export const OTP_FILE_PATH = '/tmp/otp.txt' // PRODUCTION:REMOVE
 
 /**
  * Standard retry options for async operations
  * @readonly
  */
 export const STANDARD_RETRY_OPTIONS = {
-  // minTimeout: 200, // PRODUCTION:UNCOMMENT
-  minTimeout: 20, // PRODUCTION:REMOVE
+   minTimeout: 200, 
   retries: 5,
 } as const

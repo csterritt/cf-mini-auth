@@ -101,8 +101,6 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
     }
 
     if (session.token !== otp) {
-      // PRODUCTION:REMOVE-NEXT-LINE
-      if (otp !== '123456') {
         // Increment attemptCount
         const newAttemptCount: number =
           (typeof session.attemptCount === 'number'
@@ -130,8 +128,6 @@ export const handleFinishOtp = (app: Hono<{ Bindings: Bindings }>): void => {
           PATHS.AUTH.AWAIT_CODE,
           'Invalid OTP or verification failed'
         )
-        // PRODUCTION:REMOVE-NEXT-LINE
-      }
     }
 
     // Update session: expire in 6 months, set signedIn true

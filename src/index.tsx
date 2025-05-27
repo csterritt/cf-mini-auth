@@ -20,10 +20,6 @@ import { handleCancelSignIn } from './routes/auth/handleCancelSignIn'
 import { handleSignOut } from './routes/auth/handleSignOut'
 import { provideSession } from './middleware/provide-session'
 import { handleResendCode } from './routes/auth/handleResendCode'
-import { handleSetClock } from './routes/auth/handleSetClock' // PRODUCTION:REMOVE
-import { handleResetClock } from './routes/auth/handleResetClock' // PRODUCTION:REMOVE
-import { handleSetDbFailures } from './routes/handleSetDbFailures' // PRODUCTION:REMOVE
-import { handleCleanSessions } from './routes/auth/handleCleanSessions' // PRODUCTION:REMOVE
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -32,15 +28,13 @@ app.use(
   '*',
   csrf({
     origin: (origin) => {
-      // return /https:\/\/cf-mini.example.com$/.test(origin)  // PRODUCTION:UNCOMMENT
-      return /http:\/\/localhost(:\d+)?$/.test(origin) // PRODUCTION:REMOVE
+       return /https:\/\/cf-mini.example.com$/.test(origin)  
     },
   })
 )
 app.use(
   bodyLimit({
-    // maxSize: 4 * 1024, // 4kb // PRODUCTION:UNCOMMENT
-    maxSize: 1024, // 50kb // PRODUCTION:REMOVE
+     maxSize: 4 * 1024, // 4kb 
     onError: (c) => {
       console.log('Body limit exceeded')
       return c.text('overflow :(', HTML_STATUS.CONTENT_TOO_LARGE)
@@ -64,10 +58,6 @@ handleResendCode(app)
 handleCancelSignIn(app)
 handleSignOut(app)
 
-handleSetClock(app) // PRODUCTION:REMOVE
-handleResetClock(app) // PRODUCTION:REMOVE
-handleSetDbFailures(app) // PRODUCTION:REMOVE
-handleCleanSessions(app) // PRODUCTION:REMOVE
 
 // this MUST be the last route declared!
 build404(app)

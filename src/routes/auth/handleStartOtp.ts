@@ -20,7 +20,7 @@ import {
 import { generateToken } from '../../lib/generate-code'
 import { getCurrentTime } from '../../lib/time-access'
 import { StartOtpSchema, validateRequest } from '../../lib/validators'
-// import { sendOtpToUserViaEmail } from '../../lib/send-email' // PRODUCTION:UNCOMMENT
+ import { sendOtpToUserViaEmail } from '../../lib/send-email' 
 
 // Maximum number of non-signed-in sessions allowed in the rate limit window
 const MAX_REQUESTS_PER_WINDOW = 3
@@ -150,13 +150,10 @@ export const handleStartOtp = (app: Hono<{ Bindings: Bindings }>): void => {
       return redirectWithError(c, PATHS.AUTH.SIGN_IN, 'Database error')
     }
     setCookie(c, COOKIES.SESSION, sessionId, COOKIES.STANDARD_COOKIE_OPTIONS)
-    c.header('X-Session-Token', sessionToken) // PRODUCTION:REMOVE
 
     // Send the OTP code to the user via email
-    console.log(`======> The session token is ${sessionToken}`) // PRODUCTION:REMOVE
 
-    const res = Result.ok(true) // PRODUCTION:REMOVE
-    // const res = await sendOtpToUserViaEmail(email, sessionToken) // PRODUCTION:UNCOMMENT
+     const res = await sendOtpToUserViaEmail(email, sessionToken) 
     if (res.isErr) {
       console.error('Failed to send email:', res.error)
       await deleteSession(c.env.DB, sessionId)

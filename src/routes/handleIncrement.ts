@@ -32,13 +32,7 @@ export const handleIncrement = (app: Hono<{ Bindings: Bindings }>): void => {
       )
     }
     
-    // Check for DB_FAIL_INCR cookie using getCookie // PRODUCTION:REMOVE
     let dbFailCount: CountAndDecrement | undefined = undefined
-    const failCountCookie = getCookie(c, COOKIES.DB_FAIL_INCR) // PRODUCTION:REMOVE
-    // PRODUCTION:REMOVE-NEXT-LINE
-    if (failCountCookie && !isNaN(Number(failCountCookie))) {
-      dbFailCount = new CountAndDecrement(Number(failCountCookie)) // PRODUCTION:REMOVE
-    } // PRODUCTION:REMOVE
 
     const result = await incrementCountById(c.env.DB, 'foo', dbFailCount)
     if (isErr(result)) {
