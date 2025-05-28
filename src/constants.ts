@@ -55,7 +55,7 @@ export const PATHS = {
 
 // Cookie names
 export const COOKIES = {
-  // Oridnary message cookie
+  // Ordinary message cookie
   MESSAGE_FOUND: 'MESSAGE_FOUND',
   // Error message cookie
   ERROR_FOUND: 'ERROR_FOUND',
@@ -95,11 +95,11 @@ export const DURATIONS = {
   RATE_LIMIT_WINDOW_MS: 5 * 60 * 1000, // 5 minutes in milliseconds
 }
 
-
 /**
  * Standard retry options for async operations
  * @readonly
  */
+// @ts-ignore
 export const STANDARD_RETRY_OPTIONS = {
    minTimeout: 200, 
   retries: 5,

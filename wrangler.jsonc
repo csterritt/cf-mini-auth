@@ -8,9 +8,9 @@
     {
       "binding": "DB",
       "database_name": "cf-mini-auth-db",
-      "database_id": "e2150b3c-c078-441c-ba8d-0117b2070e6d",
-    },
-  ],
+      "database_id": "e2150b3c-c078-441c-ba8d-0117b2070e6d"
+    }
+  ]
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
