@@ -106,13 +106,11 @@ export const DURATIONS = {
   RATE_LIMIT_WINDOW_MS: 5 * 60 * 1000, // 5 minutes in milliseconds
 }
 
-// OTP file path used by the backend // PRODUCTION:REMOVE
-export const OTP_FILE_PATH = '/tmp/otp.txt' // PRODUCTION:REMOVE
-
 /**
  * Standard retry options for async operations
  * @readonly
  */
+// @ts-ignore
 export const STANDARD_RETRY_OPTIONS = {
   // minTimeout: 200, // PRODUCTION:UNCOMMENT
   minTimeout: 20, // PRODUCTION:REMOVE
